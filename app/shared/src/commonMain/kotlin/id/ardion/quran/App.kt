@@ -11,6 +11,7 @@ import id.ardion.quran.presentation.surah.SurahDetailScreen
 import id.ardion.quran.presentation.surah.SurahDetailViewModel
 import id.ardion.quran.presentation.surahlist.SurahListScreen
 import id.ardion.quran.presentation.surahlist.SurahListViewModel
+import id.ardion.quran.utils.BackHandler
 import kotlinx.coroutines.delay
 import org.koin.compose.KoinApplication
 import org.koin.compose.koinInject
@@ -25,6 +26,12 @@ fun App() {
             LaunchedEffect(Unit) {
                 delay(1800)
                 isSplashVisible = false
+            }
+
+            if (selectedSurahNumber != null && !isSplashVisible) {
+                BackHandler(enabled = true) {
+                    selectedSurahNumber = null
+                }
             }
 
             AnimatedVisibility(
