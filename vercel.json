@@ -1,0 +1,5 @@
+{
+  "buildCommand": "./gradlew :app:webApp:wasmJsBrowserDistribution",
+  "outputDirectory": "app/webApp/build/dist/wasmJs/productionExecutable",
+  "framework": null
+}
