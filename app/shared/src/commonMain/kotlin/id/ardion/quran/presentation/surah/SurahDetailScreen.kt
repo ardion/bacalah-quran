@@ -55,33 +55,41 @@ fun SurahDetailScreen(
         AlertDialog(
             onDismissRequest = { selectedTajweedInfo = null },
             title = {
-                Row(
+                Column(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+                    Row(
+                        verticalAlignment = Alignment.Top,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
                         Box(
                             modifier = Modifier
-                                .size(16.dp)
+                                .padding(top = 4.dp)
+                                .size(14.dp)
                                 .clip(CircleShape)
                                 .background(tajweed.color)
                         )
-                        Spacer(modifier = Modifier.width(8.dp))
+                        Spacer(modifier = Modifier.width(10.dp))
                         Text(
                             text = tajweed.name,
                             fontWeight = FontWeight.Bold,
                             color = IslamicTextPrimary,
-                            style = MaterialTheme.typography.titleMedium
+                            style = MaterialTheme.typography.titleMedium,
+                            lineHeight = 22.sp,
+                            modifier = Modifier.weight(1f)
                         )
                     }
                     if (tajweed.arabicName.isNotEmpty()) {
                         Text(
                             text = tajweed.arabicName,
-                            fontSize = 20.sp,
+                            fontSize = 22.sp,
                             fontWeight = FontWeight.Bold,
                             color = IslamicPrimary,
-                            fontFamily = FontFamily(Font(Res.font.amiri))
+                            fontFamily = FontFamily(Font(Res.font.amiri)),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = 24.dp)
                         )
                     }
                 }
