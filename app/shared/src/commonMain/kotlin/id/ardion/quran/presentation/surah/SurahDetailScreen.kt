@@ -55,19 +55,35 @@ fun SurahDetailScreen(
         AlertDialog(
             onDismissRequest = { selectedTajweedInfo = null },
             title = {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        modifier = Modifier
-                            .size(16.dp)
-                            .clip(CircleShape)
-                            .background(tajweed.color)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = tajweed.name,
-                        fontWeight = FontWeight.Bold,
-                        color = IslamicTextPrimary
-                    )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+                        Box(
+                            modifier = Modifier
+                                .size(16.dp)
+                                .clip(CircleShape)
+                                .background(tajweed.color)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = tajweed.name,
+                            fontWeight = FontWeight.Bold,
+                            color = IslamicTextPrimary,
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                    }
+                    if (tajweed.arabicName.isNotEmpty()) {
+                        Text(
+                            text = tajweed.arabicName,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = IslamicPrimary,
+                            fontFamily = FontFamily(Font(Res.font.amiri))
+                        )
+                    }
                 }
             },
             text = {

@@ -10,7 +10,7 @@ actual class AudioPlayer actual constructor() {
     private var currentUrl: String? = null
     private var isPaused = false
 
-    actual fun play(url: String) {
+    actual fun play(url: String, onCompletion: (() -> Unit)?) {
         if (currentUrl == url && mediaPlayer != null) {
             if (isPaused) {
                 mediaPlayer?.start()
@@ -31,6 +31,11 @@ actual class AudioPlayer actual constructor() {
                 prepareAsync()
                 setOnPreparedListener { 
                     start() 
+                }
+                setOnCompletionListener {
+                    currentUrl = null
+                    isPaused = false
+                    onCompletion?.invoke()
                 }
             }
         }

@@ -3,7 +3,7 @@
 package id.ardion.quran.audio
 
 expect class AudioPlayer() {
-    fun play(url: String)
+    fun play(url: String, onCompletion: (() -> Unit)? = null)
     fun pause()
     fun stop()
 }

@@ -38,7 +38,9 @@ class SurahDetailViewModel(
             audioPlayer.pause()
             _playingAudioUrl.value = null
         } else {
-            audioPlayer.play(url)
+            audioPlayer.play(url, onCompletion = {
+                _playingAudioUrl.value = null
+            })
             _playingAudioUrl.value = url
         }
     }

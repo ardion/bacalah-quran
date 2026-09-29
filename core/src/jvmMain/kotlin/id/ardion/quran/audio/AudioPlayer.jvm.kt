@@ -3,7 +3,7 @@
 package id.ardion.quran.audio
 
 actual class AudioPlayer actual constructor() {
-    actual fun play(url: String) {
+    actual fun play(url: String, onCompletion: (() -> Unit)?) {
     }
 
     actual fun pause() {
