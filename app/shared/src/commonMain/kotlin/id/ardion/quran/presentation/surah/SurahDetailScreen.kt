@@ -26,14 +26,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import bacalah.app.shared.generated.resources.Res
 import bacalah.app.shared.generated.resources.amiri
+import id.ardion.quran.constants.QuranConstants
 import id.ardion.quran.domain.model.AyahDetail
+import id.ardion.quran.presentation.components.ErrorScreen
+import id.ardion.quran.presentation.components.SurahDetailShimmer
 import id.ardion.quran.state.UiState
+import id.ardion.quran.theme.IslamicBackground
+import id.ardion.quran.theme.IslamicCardHighlight
+import id.ardion.quran.theme.IslamicGold
+import id.ardion.quran.theme.IslamicPrimary
+import id.ardion.quran.theme.IslamicTextPrimary
+import id.ardion.quran.theme.IslamicTextSecondary
 import id.ardion.quran.utils.TajweedInfo
 import id.ardion.quran.utils.getTajweedInfo
 import org.jetbrains.compose.resources.Font
-
-val IslamicPrimary = Color(0xFF0A5C36)
-val IslamicGold = Color(0xFFC5A059)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -60,7 +66,7 @@ fun SurahDetailScreen(
                     Text(
                         text = tajweed.name,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF1A1A1A)
+                        color = IslamicTextPrimary
                     )
                 }
             },
@@ -69,13 +75,13 @@ fun SurahDetailScreen(
                     text = tajweed.description,
                     fontSize = 15.sp,
                     lineHeight = 22.sp,
-                    color = Color(0xFF4A4A4A)
+                    color = IslamicTextSecondary
                 )
             },
             confirmButton = {
                 TextButton(onClick = { selectedTajweedInfo = null }) {
                     Text(
-                        text = "Tutup",
+                        text = QuranConstants.BTN_CLOSE,
                         color = IslamicPrimary,
                         fontWeight = FontWeight.Bold
                     )
@@ -92,7 +98,7 @@ fun SurahDetailScreen(
                 title = {
                     val title = when (val current = state) {
                         is UiState.Success -> "${current.data.englishName} • ${current.data.name}"
-                        else -> "Detail Surah"
+                        else -> QuranConstants.DETAIL_SURAH_TITLE
                     }
                     Text(
                         text = title,
@@ -111,7 +117,7 @@ fun SurahDetailScreen(
                     IconButton(onClick = onBackClick) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Kembali",
+                            contentDescription = QuranConstants.DESC_NAV_BACK,
                             tint = Color.White
                         )
                     }
@@ -121,19 +127,19 @@ fun SurahDetailScreen(
                 )
             )
         },
-        containerColor = Color(0xFFF4F6F4)
+        containerColor = IslamicBackground
     ) { innerPadding ->
         Box(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
             when (val current = state) {
-                is UiState.Idle, is UiState.Loading -> CircularProgressIndicator(
-                    Modifier.align(Alignment.Center),
-                    color = IslamicPrimary
+                is UiState.Idle, is UiState.Loading -> SurahDetailShimmer()
+
+                is UiState.Error -> ErrorScreen(
+                    message = current.message,
+                    onRetry = {
+                        viewModel.loadSurah(1)
+                    }
                 )
-                is UiState.Error -> Text(
-                    current.message,
-                    color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.align(Alignment.Center)
-                )
+
                 is UiState.Success -> {
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
@@ -153,7 +159,7 @@ fun SurahDetailScreen(
                                         contentAlignment = Alignment.Center
                                     ) {
                                         Text(
-                                            text = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+                                            text = QuranConstants.BISMILLAH_TEXT,
                                             fontSize = 28.sp,
                                             fontWeight = FontWeight.Bold,
                                             color = Color.White,
@@ -192,7 +198,7 @@ fun AyahDetailItem(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (isPlaying) Color(0xFFEBF5EE) else Color.White
+            containerColor = if (isPlaying) IslamicCardHighlight else Color.White
         ),
         border = if (isPlaying) BorderStroke(1.5.dp, IslamicGold) else null,
         elevation = CardDefaults.cardElevation(defaultElevation = if (isPlaying) 6.dp else 2.dp)
@@ -232,7 +238,7 @@ fun AyahDetailItem(
                     ) {
                         Icon(
                             imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                            contentDescription = if (isPlaying) "Jeda Audio" else "Putar Audio",
+                            contentDescription = if (isPlaying) QuranConstants.DESC_PAUSE_AUDIO else QuranConstants.DESC_PLAY_AUDIO,
                             tint = if (isPlaying) Color.White else IslamicPrimary,
                             modifier = Modifier.size(20.dp)
                         )
@@ -259,7 +265,7 @@ fun AyahDetailItem(
                     fontSize = 28.sp,
                     lineHeight = 56.sp,
                     textAlign = TextAlign.End,
-                    color = Color(0xFF1A1A1A),
+                    color = IslamicTextPrimary,
                     lineHeightStyle = LineHeightStyle(
                         alignment = LineHeightStyle.Alignment.Center,
                         trim = LineHeightStyle.Trim.None
@@ -284,7 +290,7 @@ fun AyahDetailItem(
             Spacer(modifier = Modifier.height(12.dp))
 
             Text(
-                text = "Terjemahan",
+                text = QuranConstants.LABEL_TRANSLATION,
                 style = MaterialTheme.typography.labelSmall,
                 color = IslamicPrimary,
                 fontWeight = FontWeight.Bold
@@ -293,7 +299,7 @@ fun AyahDetailItem(
             Text(
                 text = ayah.translation,
                 style = MaterialTheme.typography.bodyMedium,
-                color = Color(0xFF4A4A4A),
+                color = IslamicTextSecondary,
                 lineHeight = 22.sp
             )
         }

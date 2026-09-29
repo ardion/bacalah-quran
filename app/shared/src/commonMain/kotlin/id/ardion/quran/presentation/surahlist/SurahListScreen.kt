@@ -21,12 +21,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import bacalah.app.shared.generated.resources.Res
 import bacalah.app.shared.generated.resources.amiri
+import id.ardion.quran.constants.QuranConstants
 import id.ardion.quran.domain.model.SurahItem
+import id.ardion.quran.presentation.components.ErrorScreen
+import id.ardion.quran.presentation.components.SurahListShimmer
 import id.ardion.quran.state.UiState
+import id.ardion.quran.theme.IslamicBackground
+import id.ardion.quran.theme.IslamicGold
+import id.ardion.quran.theme.IslamicPrimary
+import id.ardion.quran.theme.IslamicTextPrimary
 import org.jetbrains.compose.resources.Font
-
-val IslamicPrimary = Color(0xFF0A5C36)
-val IslamicGold = Color(0xFFC5A059)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -41,7 +45,7 @@ fun SurahListScreen(
             TopAppBar(
                 title = {
                     Text(
-                        "Al-Quran Al-Kareem",
+                        text = QuranConstants.APP_TITLE,
                         fontWeight = FontWeight.Bold,
                         color = Color.White
                     )
@@ -51,19 +55,15 @@ fun SurahListScreen(
                 )
             )
         },
-        containerColor = Color(0xFFF4F6F4)
+        containerColor = IslamicBackground
     ) { innerPadding ->
         Box(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
             when (val current = state) {
-                is UiState.Idle, is UiState.Loading -> CircularProgressIndicator(
-                    Modifier.align(Alignment.Center),
-                    color = IslamicPrimary
-                )
+                is UiState.Idle, is UiState.Loading -> SurahListShimmer()
 
-                is UiState.Error -> Text(
-                    current.message,
-                    color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.align(Alignment.Center)
+                is UiState.Error -> ErrorScreen(
+                    message = current.message,
+                    onRetry = { viewModel.loadSurahList() }
                 )
 
                 is UiState.Success -> {
@@ -120,7 +120,7 @@ fun SurahListItem(surah: SurahItem, onClick: () -> Unit) {
                     text = surah.englishName,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF1A1A1A)
+                    color = IslamicTextPrimary
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
