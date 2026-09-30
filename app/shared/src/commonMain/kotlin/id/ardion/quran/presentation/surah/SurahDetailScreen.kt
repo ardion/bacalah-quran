@@ -49,6 +49,7 @@ fun SurahDetailScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
     val playingUrl by viewModel.playingAudioUrl.collectAsState()
+    val isPlayingFullSurah by viewModel.isPlayingFullSurah.collectAsState()
     var selectedTajweedInfo by remember { mutableStateOf<TajweedInfo?>(null) }
 
     selectedTajweedInfo?.let { tajweed ->
@@ -170,26 +171,48 @@ fun SurahDetailScreen(
                         contentPadding = PaddingValues(16.dp),
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        if (current.data.number != 9) {
-                            item {
-                                Card(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    shape = RoundedCornerShape(16.dp),
-                                    colors = CardDefaults.cardColors(containerColor = IslamicPrimary),
-                                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                        // Header Card: Bismillah & Full Surah Audio Button
+                        item {
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(16.dp),
+                                colors = CardDefaults.cardColors(containerColor = IslamicPrimary),
+                                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                            ) {
+                                Column(
+                                    modifier = Modifier.fillMaxWidth().padding(20.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
-                                    Box(
-                                        modifier = Modifier.fillMaxWidth().padding(24.dp),
-                                        contentAlignment = Alignment.Center
-                                    ) {
+                                    if (current.data.number != 9) {
                                         Text(
                                             text = QuranConstants.BISMILLAH_TEXT,
                                             fontSize = 28.sp,
                                             fontWeight = FontWeight.Bold,
                                             color = Color.White,
-                                            fontFamily = FontFamily(
-                                                Font(Res.font.amiri)
-                                            )
+                                            fontFamily = FontFamily(Font(Res.font.amiri))
+                                        )
+                                        Spacer(modifier = Modifier.height(16.dp))
+                                    }
+
+                                    Button(
+                                        onClick = { viewModel.togglePlayFullSurah(current.data.ayahs) },
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = if (isPlayingFullSurah) IslamicGold else Color.White.copy(alpha = 0.25f)
+                                        ),
+                                        shape = RoundedCornerShape(12.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = if (isPlayingFullSurah) Icons.Default.Pause else Icons.Default.PlayArrow,
+                                            contentDescription = null,
+                                            tint = Color.White,
+                                            modifier = Modifier.size(18.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text(
+                                            text = if (isPlayingFullSurah) "Jeda Surah" else "Putar Seluruh Surah",
+                                            color = Color.White,
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 14.sp
                                         )
                                     }
                                 }
