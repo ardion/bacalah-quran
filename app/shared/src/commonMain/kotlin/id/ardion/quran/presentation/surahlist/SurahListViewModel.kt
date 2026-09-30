@@ -17,6 +17,11 @@ class SurahListViewModel(
     private val _uiState = MutableStateFlow<UiState<List<SurahItem>>>(UiState.Loading)
     val uiState: StateFlow<UiState<List<SurahItem>>> = _uiState
 
+    private val _searchQuery = MutableStateFlow("")
+    val searchQuery: StateFlow<String> = _searchQuery
+
+    private var fullSurahList: List<SurahItem> = emptyList()
+
     private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
     init {
@@ -27,8 +32,30 @@ class SurahListViewModel(
         scope.launch {
             _uiState.value = UiState.Loading
             getSurahListUseCase()
-                .onSuccess { _uiState.value = UiState.Success(it) }
+                .onSuccess { list ->
+                    fullSurahList = list
+                    filterSurahList(_searchQuery.value)
+                }
                 .onFailure { _uiState.value = UiState.Error(it.message ?: "Gagal memuat surah") }
+        }
+    }
+
+    fun onSearchQueryChanged(query: String) {
+        _searchQuery.value = query
+        filterSurahList(query)
+    }
+
+    private fun filterSurahList(query: String) {
+        if (query.isBlank()) {
+            _uiState.value = UiState.Success(fullSurahList)
+        } else {
+            val filtered = fullSurahList.filter { surah ->
+                surah.englishName.contains(query, ignoreCase = true) ||
+                surah.number.toString().contains(query) ||
+                surah.translation.contains(query, ignoreCase = true) ||
+                surah.name.contains(query)
+            }
+            _uiState.value = UiState.Success(filtered)
         }
     }
 }
