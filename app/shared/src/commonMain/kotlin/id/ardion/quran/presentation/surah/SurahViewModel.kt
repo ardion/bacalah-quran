@@ -35,7 +35,9 @@ class SurahDetailViewModel(
         scope.launch {
             _uiState.value = UiState.Loading
             getSurahDetailUseCase(surahNumber)
-                .onSuccess { _uiState.value = UiState.Success(it) }
+                .onSuccess { surahDetail ->
+                    _uiState.value = UiState.Success(surahDetail)
+                }
                 .onFailure { _uiState.value = UiState.Error(it.message ?: "Gagal memuat detail") }
         }
     }

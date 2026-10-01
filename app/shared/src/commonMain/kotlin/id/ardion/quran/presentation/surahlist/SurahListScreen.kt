@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
@@ -24,7 +25,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import bacalah.app.shared.generated.resources.Res
 import bacalah.app.shared.generated.resources.amiri
-import id.ardion.quran.constants.QuranConstants
 import id.ardion.quran.domain.model.SurahItem
 import id.ardion.quran.presentation.components.ErrorScreen
 import id.ardion.quran.presentation.components.SurahListShimmer
@@ -39,7 +39,8 @@ import org.jetbrains.compose.resources.Font
 @Composable
 fun SurahListScreen(
     viewModel: SurahListViewModel,
-    onSurahClick: (Int) -> Unit
+    onSurahClick: (Int) -> Unit,
+    onBackClick: (() -> Unit)? = null
 ) {
     val state by viewModel.uiState.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
@@ -49,10 +50,21 @@ fun SurahListScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = QuranConstants.APP_TITLE,
+                        text = "Daftar Surah",
                         fontWeight = FontWeight.Bold,
                         color = Color.White
                     )
+                },
+                navigationIcon = {
+                    onBackClick?.let { backAction ->
+                        IconButton(onClick = backAction) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Kembali",
+                                tint = Color.White
+                            )
+                        }
+                    }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = IslamicPrimary
@@ -76,7 +88,6 @@ fun SurahListScreen(
                         contentPadding = PaddingValues(16.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        // Search Bar
                         item {
                             OutlinedTextField(
                                 value = searchQuery,

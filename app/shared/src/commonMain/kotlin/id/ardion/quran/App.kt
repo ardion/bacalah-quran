@@ -6,10 +6,12 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import id.ardion.quran.di.appModule
+import id.ardion.quran.presentation.home.HomeScreen
+import id.ardion.quran.presentation.home.HomeSection
+import id.ardion.quran.presentation.mushaf.MushafPageViewModel
 import id.ardion.quran.presentation.splash.SplashScreen
 import id.ardion.quran.presentation.surah.SurahDetailScreen
 import id.ardion.quran.presentation.surah.SurahDetailViewModel
-import id.ardion.quran.presentation.surahlist.SurahListScreen
 import id.ardion.quran.presentation.surahlist.SurahListViewModel
 import id.ardion.quran.utils.BackHandler
 import kotlinx.coroutines.delay
@@ -22,6 +24,7 @@ fun App() {
         MaterialTheme {
             var isSplashVisible by remember { mutableStateOf(true) }
             var selectedSurahNumber by remember { mutableStateOf<Int?>(null) }
+            var currentSection by remember { mutableStateOf(HomeSection.DASHBOARD) }
 
             LaunchedEffect(Unit) {
                 delay(1800)
@@ -49,8 +52,12 @@ fun App() {
             ) {
                 if (selectedSurahNumber == null) {
                     val listViewModel: SurahListViewModel = koinInject()
-                    SurahListScreen(
-                        viewModel = listViewModel,
+                    val mushafViewModel: MushafPageViewModel = koinInject()
+                    HomeScreen(
+                        listViewModel = listViewModel,
+                        mushafViewModel = mushafViewModel,
+                        currentSection = currentSection,
+                        onSectionChange = { currentSection = it },
                         onSurahClick = { surahNum -> selectedSurahNumber = surahNum }
                     )
                 } else {

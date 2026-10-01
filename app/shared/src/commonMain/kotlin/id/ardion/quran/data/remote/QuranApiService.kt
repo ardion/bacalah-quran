@@ -1,6 +1,7 @@
 package id.ardion.quran.data.remote
 
 import id.ardion.quran.data.response.MultiEditionSurahDto
+import id.ardion.quran.data.response.PageDataDto
 import id.ardion.quran.data.response.SurahDataDto
 import id.ardion.quran.data.response.SurahListItemDto
 import id.ardion.quran.network.ApiResponse
@@ -27,6 +28,13 @@ class QuranApiService(private val httpClient: HttpClient) {
     suspend fun getSurahDetailMultiEdition(surahNumber: Int): List<MultiEditionSurahDto> {
         val response: ApiResponse<List<MultiEditionSurahDto>> = httpClient
             .get("surah/$surahNumber/editions/quran-tajweed,id.indonesian,en.transliteration,ar.alafasy")
+            .body()
+        return response.data
+    }
+
+    suspend fun getPageTajweed(pageNumber: Int): PageDataDto {
+        val response: ApiResponse<PageDataDto> = httpClient
+            .get("page/$pageNumber/quran-tajweed")
             .body()
         return response.data
     }

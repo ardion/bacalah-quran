@@ -1,8 +1,10 @@
 package id.ardion.quran.data.mapper
 
 import id.ardion.quran.data.response.MultiEditionSurahDto
+import id.ardion.quran.data.response.PageDataDto
 import id.ardion.quran.data.response.SurahListItemDto
 import id.ardion.quran.domain.model.AyahDetail
+import id.ardion.quran.domain.model.PageDetail
 import id.ardion.quran.domain.model.SurahDetail
 import id.ardion.quran.domain.model.SurahItem
 import id.ardion.quran.utils.parseTajweedText
@@ -34,7 +36,7 @@ fun mapToSurahDetail(editions: List<MultiEditionSurahDto>): SurahDetail {
             textTajweed = parseTajweedText(tajweedAyah.text),
             translation = translationEdition.ayahs.getOrNull(index)?.text ?: "",
             transliteration = transliterationEdition?.ayahs?.getOrNull(index)?.text,
-            audioUrl = audioEdition.ayahs.getOrNull(index)?.audio
+            audioUrl = audioEdition.ayahs.getOrNull(index)?.audio ?: "https://cdn.islamic.network/quran/audio/128/ar.alafasy/${tajweedAyah.number}.mp3"
         )
     }
 
@@ -44,6 +46,26 @@ fun mapToSurahDetail(editions: List<MultiEditionSurahDto>): SurahDetail {
         englishName = tajweedEdition.englishName,
         revelationType = tajweedEdition.revelationType,
         numberOfAyahs = tajweedEdition.numberOfAyahs,
+        ayahs = ayahs
+    )
+}
+
+fun mapToPageDetail(data: PageDataDto, pageNumber: Int): PageDetail {
+    val ayahs = data.ayahs.map { ayah ->
+        AyahDetail(
+            numberInSurah = ayah.numberInSurah,
+            textTajweed = parseTajweedText(ayah.text),
+            translation = "",
+            transliteration = null,
+            audioUrl = "https://cdn.islamic.network/quran/audio/128/ar.alafasy/${ayah.number}.mp3",
+            surahName = ayah.surah?.englishName ?: ayah.surah?.name,
+            revelationType = ayah.surah?.revelationType,
+            juz = ayah.juz
+        )
+    }
+
+    return PageDetail(
+        pageNumber = pageNumber,
         ayahs = ayahs
     )
 }

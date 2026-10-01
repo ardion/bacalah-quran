@@ -25,6 +25,12 @@ data class SurahDataDto(
 )
 
 @Serializable
+data class PageDataDto(
+    @SerialName("number") val number: Int,
+    @SerialName("ayahs") val ayahs: List<AyahDto>
+)
+
+@Serializable
 data class AyahDto(
     @SerialName("number") val number: Int,
     @SerialName("text") val text: String,
@@ -35,9 +41,9 @@ data class AyahDto(
     @SerialName("ruku") val ruku: Int,
     @SerialName("hizbQuarter") val hizbQuarter: Int,
     @SerialName("sajda") val sajda: JsonElement,
-    @SerialName("audio") val audio: String? = null
+    @SerialName("audio") val audio: String? = null,
+    @SerialName("surah") val surah: SurahListItemDto? = null
 )
-
 
 @Serializable
 data class SurahListItemDto(

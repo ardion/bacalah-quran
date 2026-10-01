@@ -105,6 +105,38 @@ fun SurahListShimmer() {
 }
 
 @Composable
+fun MushafPageShimmer() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(44.dp)
+                .clip(RoundedCornerShape(8.dp))
+                .shimmerEffect()
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        repeat(9) { index ->
+            val fraction = if (index % 3 == 2) 0.65f else 1.0f
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(fraction)
+                    .height(28.dp)
+                    .clip(RoundedCornerShape(6.dp))
+                    .shimmerEffect()
+            )
+        }
+    }
+}
+
+@Composable
 fun SurahDetailShimmer() {
     Column(
         modifier = Modifier
