@@ -2,13 +2,13 @@ package id.ardion.quran.presentation.surah
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Bookmark
@@ -21,16 +21,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import bacalah.app.shared.generated.resources.Res
-import bacalah.app.shared.generated.resources.amiri
-import id.ardion.quran.constants.QuranConstants
-import id.ardion.quran.domain.manager.LastReadManager
+import bacalah.app.shared.generated.resources.*
+import id.ardion.quran.domain.usecase.GetLastReadUseCase
+import org.koin.compose.koinInject
 import id.ardion.quran.domain.model.AyahDetail
 import id.ardion.quran.presentation.components.ErrorScreen
 import id.ardion.quran.presentation.components.SurahDetailShimmer
@@ -44,7 +45,7 @@ import id.ardion.quran.theme.IslamicTextSecondary
 import id.ardion.quran.utils.TajweedInfo
 import id.ardion.quran.utils.getTajweedInfo
 import kotlinx.coroutines.delay
-import org.jetbrains.compose.resources.Font
+import org.jetbrains.compose.resources.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -55,14 +56,15 @@ fun SurahDetailScreen(
     val state by viewModel.uiState.collectAsState()
     val playingUrl by viewModel.playingAudioUrl.collectAsState()
     val isPlayingFullSurah by viewModel.isPlayingFullSurah.collectAsState()
-    val multiLastRead by LastReadManager.multiLastRead.collectAsState()
+    val getLastReadUseCase: GetLastReadUseCase = koinInject()
+    val multiLastRead by getLastReadUseCase().collectAsState()
     val surahLastRead = multiLastRead.surahLastRead
     var selectedTajweedInfo by remember { mutableStateOf<TajweedInfo?>(null) }
     val listState = rememberLazyListState()
 
     DisposableEffect(Unit) {
         onDispose {
-            viewModel.onCleared()
+            viewModel.stopFullSurah()
         }
     }
 
@@ -108,7 +110,11 @@ fun SurahDetailScreen(
             },
             confirmButton = {
                 TextButton(onClick = { selectedTajweedInfo = null }) {
-                    Text("Tutup", color = IslamicPrimary, fontWeight = FontWeight.Bold)
+                    Text(
+                        stringResource(Res.string.close),
+                        color = IslamicPrimary,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             },
             containerColor = Color.White,
@@ -121,7 +127,7 @@ fun SurahDetailScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = (state as? UiState.Success)?.data?.englishName ?: "Detail Surah",
+                        text = (state as? UiState.Success)?.data?.englishName ?: stringResource(Res.string.detail_surah_title),
                         fontWeight = FontWeight.Bold,
                         color = Color.White
                     )
@@ -130,7 +136,7 @@ fun SurahDetailScreen(
                     IconButton(onClick = onBackClick) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = QuranConstants.DESC_NAV_BACK,
+                            contentDescription = stringResource(Res.string.back),
                             tint = Color.White
                         )
                     }
@@ -173,7 +179,7 @@ fun SurahDetailScreen(
                                 ) {
                                     if (current.data.number != 9) {
                                         Text(
-                                            text = QuranConstants.BISMILLAH_TEXT,
+                                            text = stringResource(Res.string.bismillah_text),
                                             fontSize = 28.sp,
                                             fontWeight = FontWeight.Bold,
                                             color = Color.White,
@@ -197,7 +203,7 @@ fun SurahDetailScreen(
                                         )
                                         Spacer(modifier = Modifier.width(8.dp))
                                         Text(
-                                            text = if (isPlayingFullSurah) "Jeda Surah" else "Putar Seluruh Surah",
+                                            text = if (isPlayingFullSurah) stringResource(Res.string.pause_full_surah) else stringResource(Res.string.play_full_surah),
                                             color = Color.White,
                                             fontWeight = FontWeight.Bold,
                                             fontSize = 14.sp
@@ -219,9 +225,9 @@ fun SurahDetailScreen(
                                 onPlayAudio = { url -> viewModel.playAudio(url) },
                                 onBookmarkClick = {
                                     if (isLastRead) {
-                                        LastReadManager.clearSurahLastRead()
+                                        viewModel.clearLastRead()
                                     } else {
-                                        LastReadManager.saveLastReadSurah(
+                                        viewModel.saveLastRead(
                                             surahNumber = current.data.number,
                                             surahName = current.data.englishName,
                                             ayahNumber = ayah.numberInSurah
@@ -289,7 +295,7 @@ fun AyahDetailItem(
                             contentColor = Color.White
                         ) {
                             Text(
-                                text = " Terakhir Dibaca",
+                                text = stringResource(Res.string.last_read_tag),
                                 fontSize = 10.sp,
                                 fontWeight = FontWeight.Bold,
                                 modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
@@ -311,7 +317,7 @@ fun AyahDetailItem(
                     ) {
                         Icon(
                             imageVector = if (isLastRead) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
-                            contentDescription = "Tandai Terakhir Dibaca",
+                            contentDescription = stringResource(Res.string.last_read_tag),
                             tint = if (isLastRead) IslamicGold else IslamicPrimary,
                             modifier = Modifier.size(20.dp)
                         )
@@ -329,7 +335,7 @@ fun AyahDetailItem(
                         ) {
                             Icon(
                                 imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                                contentDescription = if (isPlaying) QuranConstants.DESC_PAUSE_AUDIO else QuranConstants.DESC_PLAY_AUDIO,
+                                contentDescription = null,
                                 tint = if (isPlaying) Color.White else IslamicPrimary,
                                 modifier = Modifier.size(20.dp)
                             )
@@ -340,16 +346,11 @@ fun AyahDetailItem(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            ClickableText(
+            var textLayoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
+
+            Text(
                 text = ayah.textTajweed,
-                onClick = { offset ->
-                    ayah.textTajweed
-                        .getStringAnnotations(tag = "TAJWEED", start = offset, end = offset)
-                        .firstOrNull()?.let { annotation ->
-                            val info = getTajweedInfo(annotation.item)
-                            onTajweedClick(info)
-                        }
-                },
+                onTextLayout = { textLayoutResult = it },
                 style = LocalTextStyle.current.copy(
                     fontFamily = FontFamily(
                         Font(Res.font.amiri)
@@ -363,7 +364,29 @@ fun AyahDetailItem(
                         trim = LineHeightStyle.Trim.None
                     )
                 ),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .pointerInput(ayah.textTajweed) {
+                        detectTapGestures { pos ->
+                            textLayoutResult?.let { layout ->
+                                val offset = layout.getOffsetForPosition(pos)
+                                val startCheck = (offset - 1).coerceAtLeast(0)
+                                val endCheck = (offset + 1).coerceAtMost(ayah.textTajweed.length)
+
+                                val annotation = ayah.textTajweed
+                                    .getStringAnnotations(tag = "TAJWEED", start = offset, end = offset)
+                                    .firstOrNull()
+                                    ?: ayah.textTajweed
+                                        .getStringAnnotations(tag = "TAJWEED", start = startCheck, end = endCheck)
+                                        .firstOrNull()
+
+                                annotation?.let { ann ->
+                                    val info = getTajweedInfo(ann.item)
+                                    onTajweedClick(info)
+                                }
+                            }
+                        }
+                    }
             )
 
             ayah.transliteration?.let { transliteration ->
@@ -384,7 +407,7 @@ fun AyahDetailItem(
                 HorizontalDivider(color = Color.LightGray.copy(alpha = 0.2f))
                 Spacer(modifier = Modifier.height(10.dp))
                 Text(
-                    text = "Terjemahan",
+                    text = stringResource(Res.string.translation_label),
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Bold,
                     color = IslamicPrimary

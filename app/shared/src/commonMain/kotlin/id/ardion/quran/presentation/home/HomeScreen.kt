@@ -12,6 +12,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Bookmark
+import androidx.compose.material.icons.filled.CompassCalibration
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -22,17 +23,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import bacalah.app.shared.generated.resources.Res
-import bacalah.app.shared.generated.resources.amiri
-import id.ardion.quran.constants.QuranConstants
-import id.ardion.quran.domain.manager.LastReadManager
-import id.ardion.quran.domain.manager.MultiLastReadInfo
+import bacalah.app.shared.generated.resources.*
 import id.ardion.quran.domain.model.LastReadInfo
+import id.ardion.quran.domain.model.MultiLastReadInfo
 import id.ardion.quran.domain.model.ReadMode
 import id.ardion.quran.presentation.mushaf.MushafPageScreen
 import id.ardion.quran.presentation.mushaf.MushafPageViewModel
+import id.ardion.quran.presentation.prayer.PrayerScreen
+import id.ardion.quran.presentation.prayer.PrayerViewModel
 import id.ardion.quran.presentation.surahlist.SurahListScreen
 import id.ardion.quran.presentation.surahlist.SurahListViewModel
 import id.ardion.quran.theme.IslamicBackground
@@ -41,24 +42,27 @@ import id.ardion.quran.theme.IslamicPrimary
 import id.ardion.quran.theme.IslamicTextPrimary
 import id.ardion.quran.theme.IslamicTextSecondary
 import id.ardion.quran.utils.BackHandler
-import org.jetbrains.compose.resources.Font
+import org.jetbrains.compose.resources.*
+import org.koin.compose.koinInject
 
 enum class HomeSection {
     DASHBOARD,
     SURAH_LIST,
-    MUSHAF_PAGE
+    MUSHAF_PAGE,
+    PRAYER_TIMES
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
+    homeViewModel: HomeViewModel,
     listViewModel: SurahListViewModel,
     mushafViewModel: MushafPageViewModel,
     currentSection: HomeSection,
     onSectionChange: (HomeSection) -> Unit,
     onSurahClick: (Int) -> Unit
 ) {
-    val multiLastRead by LastReadManager.multiLastRead.collectAsState()
+    val multiLastRead by homeViewModel.multiLastRead.collectAsState()
 
     if (currentSection != HomeSection.DASHBOARD) {
         BackHandler(enabled = true) {
@@ -72,6 +76,7 @@ fun HomeScreen(
                 multiLastRead = multiLastRead,
                 onOpenSurahList = { onSectionChange(HomeSection.SURAH_LIST) },
                 onOpenMushaf = { onSectionChange(HomeSection.MUSHAF_PAGE) },
+                onOpenPrayerTimes = { onSectionChange(HomeSection.PRAYER_TIMES) },
                 onContinueReading = { lastReadInfo ->
                     if (lastReadInfo.readMode == ReadMode.MUSHAF) {
                         onSectionChange(HomeSection.MUSHAF_PAGE)
@@ -91,7 +96,7 @@ fun HomeScreen(
                 TopAppBar(
                     title = {
                         Text(
-                            "Mushaf Madinah (604 Halaman)",
+                            stringResource(Res.string.menu_mushaf_title),
                             fontWeight = FontWeight.Bold,
                             color = Color.White
                         )
@@ -100,7 +105,7 @@ fun HomeScreen(
                         IconButton(onClick = { onSectionChange(HomeSection.DASHBOARD) }) {
                             Icon(
                                 Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Kembali ke Beranda",
+                                contentDescription = stringResource(Res.string.back),
                                 tint = Color.White
                             )
                         }
@@ -115,6 +120,14 @@ fun HomeScreen(
                     )
                 }
             }
+
+            HomeSection.PRAYER_TIMES -> {
+                val prayerViewModel: PrayerViewModel = koinInject()
+                PrayerScreen(
+                    viewModel = prayerViewModel,
+                    onBackClick = { onSectionChange(HomeSection.DASHBOARD) }
+                )
+            }
         }
     }
 }
@@ -124,11 +137,13 @@ fun DashboardContent(
     multiLastRead: MultiLastReadInfo,
     onOpenSurahList: () -> Unit,
     onOpenMushaf: () -> Unit,
+    onOpenPrayerTimes: () -> Unit,
     onContinueReading: (LastReadInfo) -> Unit
 ) {
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .statusBarsPadding()
             .padding(16.dp)
     ) {
         Card(
@@ -149,21 +164,21 @@ fun DashboardContent(
                 ) {
                     Column {
                         Text(
-                            text = "Assalamu'alaikum",
+                            text = stringResource(Res.string.greeting),
                             color = IslamicGold,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Medium
                         )
                         Spacer(modifier = Modifier.height(2.dp))
                         Text(
-                            text = QuranConstants.APP_TITLE,
+                            text = stringResource(Res.string.app_title),
                             color = Color.White,
                             fontSize = 22.sp,
                             fontWeight = FontWeight.Bold
                         )
                     }
                     Text(
-                        text = "اقْرَأْ",
+                        text = stringResource(Res.string.iqra_arabic),
                         color = Color.White.copy(alpha = 0.9f),
                         fontSize = 32.sp,
                         fontWeight = FontWeight.Bold,
@@ -200,12 +215,16 @@ fun DashboardContent(
                                         Spacer(modifier = Modifier.width(10.dp))
                                         Column {
                                             Text(
-                                                text = "Terakhir Dibaca (Surah)",
+                                                text = stringResource(Res.string.last_read_surah_title),
                                                 color = Color.White.copy(alpha = 0.8f),
                                                 fontSize = 10.sp
                                             )
                                             Text(
-                                                text = "Surah ${surahLastRead.surahName} • Ayat ${surahLastRead.ayahNumber}",
+                                                text = stringResource(
+                                                    Res.string.surah_last_read_format,
+                                                    surahLastRead.surahName,
+                                                    surahLastRead.ayahNumber
+                                                ),
                                                 color = Color.White,
                                                 fontSize = 13.sp,
                                                 fontWeight = FontWeight.Bold
@@ -214,7 +233,7 @@ fun DashboardContent(
                                     }
                                     Icon(
                                         imageVector = Icons.Default.PlayArrow,
-                                        contentDescription = "Lanjutkan",
+                                        contentDescription = stringResource(Res.string.continue_reading),
                                         tint = Color.White,
                                         modifier = Modifier.size(20.dp)
                                     )
@@ -249,14 +268,23 @@ fun DashboardContent(
                                         Spacer(modifier = Modifier.width(10.dp))
                                         Column {
                                             Text(
-                                                text = "Terakhir Dibaca (Mushaf)",
+                                                text = stringResource(Res.string.last_read_mushaf_title),
                                                 color = Color.White.copy(alpha = 0.8f),
                                                 fontSize = 10.sp
                                             )
                                             val text = if (mushafLastRead.ayahNumber > 0) {
-                                                "Mushaf • Halaman ${mushafLastRead.pageNumber} (${mushafLastRead.surahName} Ayat ${mushafLastRead.ayahNumber})"
+                                                stringResource(
+                                                    Res.string.mushaf_last_read_format,
+                                                    mushafLastRead.pageNumber,
+                                                    mushafLastRead.surahName,
+                                                    mushafLastRead.ayahNumber
+                                                )
                                             } else {
-                                                "Mushaf • Halaman ${mushafLastRead.pageNumber} (${mushafLastRead.surahName})"
+                                                stringResource(
+                                                    Res.string.mushaf_last_read_format_simple,
+                                                    mushafLastRead.pageNumber,
+                                                    mushafLastRead.surahName
+                                                )
                                             }
                                             Text(
                                                 text = text,
@@ -268,7 +296,7 @@ fun DashboardContent(
                                     }
                                     Icon(
                                         imageVector = Icons.Default.PlayArrow,
-                                        contentDescription = "Lanjutkan",
+                                        contentDescription = stringResource(Res.string.continue_reading),
                                         tint = Color.White,
                                         modifier = Modifier.size(20.dp)
                                     )
@@ -283,7 +311,7 @@ fun DashboardContent(
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
-            text = "Pilih Menu Bacaan",
+            text = stringResource(Res.string.choose_menu),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
             color = IslamicTextPrimary
@@ -295,24 +323,33 @@ fun DashboardContent(
             columns = GridCells.Fixed(2),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.weight(1f).fillMaxWidth()
         ) {
             item {
                 MenuCard(
-                    title = "Daftar Surah",
-                    subtitle = "114 Surah Lengkap",
+                    title = stringResource(Res.string.menu_surah_title),
+                    subtitle = stringResource(Res.string.menu_surah_sub),
                     icon = Icons.AutoMirrored.Filled.List,
-                    badgeText = "Populer",
+                    badgeText = stringResource(Res.string.badge_popular),
                     onClick = onOpenSurahList
                 )
             }
             item {
                 MenuCard(
-                    title = "Mushaf Madinah",
-                    subtitle = "604 Lembar Halaman",
+                    title = stringResource(Res.string.menu_mushaf_title),
+                    subtitle = stringResource(Res.string.menu_mushaf_sub),
                     icon = Icons.AutoMirrored.Filled.MenuBook,
-                    badgeText = "Swipe RTL",
+                    badgeText = stringResource(Res.string.badge_mushaf),
                     onClick = onOpenMushaf
+                )
+            }
+            item {
+                MenuCard(
+                    title = stringResource(Res.string.menu_prayer_title),
+                    subtitle = stringResource(Res.string.menu_prayer_sub),
+                    icon = Icons.Default.CompassCalibration,
+                    badgeText = stringResource(Res.string.badge_prayer),
+                    onClick = onOpenPrayerTimes
                 )
             }
         }
@@ -389,6 +426,35 @@ fun MenuCard(
                     fontSize = 11.sp
                 )
             }
+        }
+    }
+}
+
+@Preview
+@Composable
+fun DashboardContentPreview() {
+    MaterialTheme {
+        Box(modifier = Modifier.fillMaxSize().background(IslamicBackground)) {
+            DashboardContent(
+                multiLastRead = MultiLastReadInfo(
+                    surahLastRead = LastReadInfo(
+                        readMode = ReadMode.SURAH,
+                        surahNumber = 36,
+                        surahName = "Yasin",
+                        ayahNumber = 15
+                    ),
+                    mushafLastRead = LastReadInfo(
+                        readMode = ReadMode.MUSHAF,
+                        pageNumber = 50,
+                        surahName = "Al-Baqarah",
+                        ayahNumber = 10
+                    )
+                ),
+                onOpenSurahList = {},
+                onOpenMushaf = {},
+                onOpenPrayerTimes = {},
+                onContinueReading = {}
+            )
         }
     }
 }

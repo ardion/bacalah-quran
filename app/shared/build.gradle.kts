@@ -1,5 +1,9 @@
+@file:OptIn(KotlinNativeCacheApi::class)
+
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.plugin.mpp.DisableCacheInKotlinVersion
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeCacheApi
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -17,6 +21,10 @@ kotlin {
         iosTarget.binaries.framework {
             baseName = "Shared"
             isStatic = true
+            disableNativeCache(
+                version = DisableCacheInKotlinVersion.`2_4_10`,
+                reason = "Fix navigation-runtime klib cache build failure"
+            )
         }
     }
     
@@ -58,6 +66,8 @@ kotlin {
             implementation(libs.compose.uiTooling)
             implementation(libs.androidx.activity.compose)
             implementation(libs.ktor.clientOkhttp)
+            implementation("com.google.android.gms:play-services-location:21.3.0")
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.11.0")
         }
         iosMain.dependencies {
             implementation(libs.ktor.clientDarwin) 
@@ -72,8 +82,10 @@ kotlin {
             implementation(libs.compose.ui)
             implementation(libs.compose.components.resources)
             implementation(libs.compose.uiToolingPreview)
-            implementation(libs.androidx.lifecycle.viewmodelCompose)
-            implementation(libs.androidx.lifecycle.runtimeCompose)
+            api(libs.androidx.lifecycle.viewmodelCore)
+            api(libs.androidx.lifecycle.viewmodelCompose)
+            api(libs.androidx.lifecycle.runtimeCompose)
+            api(libs.androidx.navigationCompose)
 
             // Ktor & Serialization
             implementation(libs.ktor.clientCore)

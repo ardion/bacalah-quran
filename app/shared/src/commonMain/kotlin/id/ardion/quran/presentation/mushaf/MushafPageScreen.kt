@@ -11,6 +11,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Pause
@@ -32,9 +33,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import bacalah.app.shared.generated.resources.Res
-import bacalah.app.shared.generated.resources.amiri
-import id.ardion.quran.domain.manager.LastReadManager
+import bacalah.app.shared.generated.resources.*
+import id.ardion.quran.domain.usecase.GetLastReadUseCase
+import org.koin.compose.koinInject
 import id.ardion.quran.domain.model.AyahDetail
 import id.ardion.quran.domain.model.PageDetail
 import id.ardion.quran.domain.model.ReadMode
@@ -49,7 +50,7 @@ import id.ardion.quran.theme.IslamicTextSecondary
 import id.ardion.quran.utils.TajweedInfo
 import id.ardion.quran.utils.getTajweedInfo
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.resources.Font
+import org.jetbrains.compose.resources.*
 
 fun toArabicNumbers(number: Int): String {
     val arabicDigits = charArrayOf('٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩')
@@ -71,10 +72,12 @@ fun getSurahStartPage(surahNumber: Int): Int {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MushafPageScreen(
     viewModel: MushafPageViewModel,
-    initialPageNumber: Int = 1
+    initialPageNumber: Int = 1,
+    onBackClick: (() -> Unit)? = null
 ) {
     val initialPageIndex = (initialPageNumber - 1).coerceIn(0, 603)
     val pagerState = rememberPagerState(initialPage = initialPageIndex) { 604 }
@@ -88,14 +91,15 @@ fun MushafPageScreen(
     val state by viewModel.uiState.collectAsState()
     val playingUrl by viewModel.playingAudioUrl.collectAsState()
     val isPlayingPage by viewModel.isPlayingPage.collectAsState()
-    val multiLastRead by LastReadManager.multiLastRead.collectAsState()
+    val getLastReadUseCase: GetLastReadUseCase = koinInject()
+    val multiLastRead by getLastReadUseCase().collectAsState()
     val lastRead = multiLastRead.mushafLastRead
     var selectedTajweedInfo by remember { mutableStateOf<TajweedInfo?>(null) }
     var isFilterModalVisible by remember { mutableStateOf(false) }
 
     DisposableEffect(Unit) {
         onDispose {
-            viewModel.onCleared()
+            viewModel.stopAudio()
         }
     }
 
@@ -107,7 +111,7 @@ fun MushafPageScreen(
             onDismissRequest = { isFilterModalVisible = false },
             title = {
                 Text(
-                    text = "Lompat Cepat (Filter Navigasi)",
+                    text = stringResource(Res.string.mushaf_jump_title),
                     fontWeight = FontWeight.Bold,
                     color = IslamicTextPrimary,
                     style = MaterialTheme.typography.titleMedium
@@ -126,24 +130,24 @@ fun MushafPageScreen(
                         Tab(
                             selected = selectedTab == 0,
                             onClick = { selectedTab = 0; filterInput = "$currentPageNumber" },
-                            text = { Text("Halaman", fontSize = 12.sp, fontWeight = FontWeight.Bold) }
+                            text = { Text(stringResource(Res.string.mushaf_tab_page), fontSize = 12.sp, fontWeight = FontWeight.Bold) }
                         )
                         Tab(
                             selected = selectedTab == 1,
                             onClick = { selectedTab = 1; filterInput = "1" },
-                            text = { Text("Surah", fontSize = 12.sp, fontWeight = FontWeight.Bold) }
+                            text = { Text(stringResource(Res.string.mushaf_tab_surah), fontSize = 12.sp, fontWeight = FontWeight.Bold) }
                         )
                         Tab(
                             selected = selectedTab == 2,
                             onClick = { selectedTab = 2; filterInput = "1" },
-                            text = { Text("Juz", fontSize = 12.sp, fontWeight = FontWeight.Bold) }
+                            text = { Text(stringResource(Res.string.mushaf_tab_juz), fontSize = 12.sp, fontWeight = FontWeight.Bold) }
                         )
                     }
 
                     val inputLabel = when (selectedTab) {
-                        0 -> "Masukkan Nomor Halaman (1 - 604):"
-                        1 -> "Masukkan Nomor Surah (1 - 114):"
-                        else -> "Masukkan Nomor Juz (1 - 30):"
+                        0 -> stringResource(Res.string.input_page_label)
+                        1 -> stringResource(Res.string.input_surah_label)
+                        else -> stringResource(Res.string.input_juz_label)
                     }
 
                     Text(
@@ -165,7 +169,7 @@ fun MushafPageScreen(
                                 if (num <= max) filterInput = input
                             }
                         },
-                        placeholder = { Text("Contoh: 1, 30, 604") },
+                        placeholder = { Text(stringResource(Res.string.input_example_placeholder)) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
@@ -195,12 +199,12 @@ fun MushafPageScreen(
                     colors = ButtonDefaults.buttonColors(containerColor = IslamicPrimary),
                     shape = RoundedCornerShape(10.dp)
                 ) {
-                    Text("Buka Navigasi", fontWeight = FontWeight.Bold, color = Color.White)
+                    Text(stringResource(Res.string.mushaf_open_nav), fontWeight = FontWeight.Bold, color = Color.White)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { isFilterModalVisible = false }) {
-                    Text("Batal", color = Color.Gray)
+                    Text(stringResource(Res.string.mushaf_cancel), color = Color.Gray)
                 }
             },
             containerColor = Color.White,
@@ -237,7 +241,7 @@ fun MushafPageScreen(
             },
             confirmButton = {
                 TextButton(onClick = { selectedTajweedInfo = null }) {
-                    Text("Tutup", color = IslamicPrimary, fontWeight = FontWeight.Bold)
+                    Text(stringResource(Res.string.close), color = IslamicPrimary, fontWeight = FontWeight.Bold)
                 }
             },
             containerColor = Color.White,
@@ -246,6 +250,27 @@ fun MushafPageScreen(
     }
 
     Column(modifier = Modifier.fillMaxSize().background(IslamicBackground)) {
+        if (onBackClick != null) {
+            TopAppBar(
+                title = {
+                    Text(
+                        stringResource(Res.string.menu_mushaf_title),
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = onBackClick) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(Res.string.back),
+                            tint = Color.White
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = IslamicPrimary)
+            )
+        }
         val currentJuz = (state as? UiState.Success)?.data?.ayahs?.firstOrNull()?.juz ?: 1
 
         Card(
@@ -268,7 +293,7 @@ fun MushafPageScreen(
                     contentColor = Color.White
                 ) {
                     Text(
-                        text = "Halaman $currentPageNumber, Juz $currentJuz",
+                        text = stringResource(Res.string.mushaf_page_juz_format, currentPageNumber, currentJuz),
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
@@ -278,13 +303,13 @@ fun MushafPageScreen(
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     Icon(
                         imageVector = Icons.Default.Info,
-                        contentDescription = "Info Halaman",
+                        contentDescription = stringResource(Res.string.page_info_cd),
                         tint = Color.White,
                         modifier = Modifier.size(20.dp)
                     )
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.List,
-                        contentDescription = "Filter Halaman, Surah, Juz",
+                        contentDescription = stringResource(Res.string.filter_page_cd),
                         tint = Color.White,
                         modifier = Modifier
                             .size(22.dp)
@@ -312,6 +337,7 @@ fun MushafPageScreen(
 
                         is UiState.Success -> {
                             MadaniMushafPageContent(
+                                viewModel = viewModel,
                                 pageDetail = current.data,
                                 playingUrl = playingUrl,
                                 onPlayAudio = { url -> viewModel.playAudio(url) },
@@ -345,12 +371,12 @@ fun MushafPageScreen(
                     ) {
                         Column {
                             Text(
-                                text = "Putar Halaman",
+                                text = stringResource(Res.string.mushaf_play_page),
                                 fontSize = 11.sp,
                                 color = Color.Gray
                             )
                             Text(
-                                text = "Halaman $currentPageNumber • ${ayahs.size} Ayat",
+                                text = stringResource(Res.string.mushaf_page_ayah_count_format, currentPageNumber, ayahs.size),
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = IslamicTextPrimary
@@ -372,7 +398,7 @@ fun MushafPageScreen(
                             )
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
-                                text = if (isPlayingPage || playingUrl != null) "Jeda" else "Putar",
+                                text = if (isPlayingPage || playingUrl != null) stringResource(Res.string.mushaf_pause) else stringResource(Res.string.mushaf_play),
                                 color = if (isPlayingPage || playingUrl != null) Color.White else IslamicPrimary,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 13.sp
@@ -387,14 +413,16 @@ fun MushafPageScreen(
 
 @Composable
 fun MadaniMushafPageContent(
+    viewModel: MushafPageViewModel,
     pageDetail: PageDetail,
     playingUrl: String?,
     onPlayAudio: (String) -> Unit,
     onTajweedClick: (TajweedInfo) -> Unit
 ) {
-    val currentSurahName = pageDetail.ayahs.firstOrNull()?.surahName ?: "Al-Fatihah"
-    val currentRevType = pageDetail.ayahs.firstOrNull()?.revelationType ?: "Makkiyah"
-    val multiLastRead by LastReadManager.multiLastRead.collectAsState()
+    val currentSurahName = pageDetail.ayahs.firstOrNull()?.surahName ?: stringResource(Res.string.default_surah_name)
+    val currentRevType = pageDetail.ayahs.firstOrNull()?.revelationType ?: stringResource(Res.string.default_revelation_type)
+    val getLastReadUseCase: GetLastReadUseCase = koinInject()
+    val multiLastRead by getLastReadUseCase().collectAsState()
     val lastRead = multiLastRead.mushafLastRead
 
     LazyColumn(
@@ -432,7 +460,7 @@ fun MadaniMushafPageContent(
                     }
 
                     Text(
-                        text = "Surah $currentSurahName",
+                        text = stringResource(Res.string.surah_prefix, currentSurahName),
                         fontSize = 17.sp,
                         fontWeight = FontWeight.Bold,
                         color = IslamicPrimary
@@ -443,7 +471,7 @@ fun MadaniMushafPageContent(
                         contentColor = Color(0xFF8A6D2B)
                     ) {
                         Text(
-                            text = "${pageDetail.ayahs.size} Ayat",
+                            text = stringResource(Res.string.ayah_count_format, pageDetail.ayahs.size),
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
@@ -538,21 +566,29 @@ fun MadaniMushafPageContent(
                                             lastRead.ayahNumber == clickedAyahNum
 
                                     if (isCurrentlyBookmarked) {
-                                        LastReadManager.clearMushafLastRead()
+                                        viewModel.clearLastReadPage()
                                     } else {
-                                        LastReadManager.saveLastReadPage(
+                                        viewModel.saveLastReadPage(
                                             pageNumber = pageDetail.pageNumber,
                                             surahName = currentSurahName,
                                             ayahNumber = clickedAyahNum
                                         )
                                     }
                                 } else {
-                                    pageAnnotatedString
+                                    val startCheck = (offset - 1).coerceAtLeast(0)
+                                    val endCheck = (offset + 1).coerceAtMost(pageAnnotatedString.length)
+
+                                    val annotation = pageAnnotatedString
                                         .getStringAnnotations(tag = "TAJWEED", start = offset, end = offset)
-                                        .firstOrNull()?.let { annotation ->
-                                            val info = getTajweedInfo(annotation.item)
-                                            onTajweedClick(info)
-                                        }
+                                        .firstOrNull()
+                                        ?: pageAnnotatedString
+                                            .getStringAnnotations(tag = "TAJWEED", start = startCheck, end = endCheck)
+                                            .firstOrNull()
+
+                                    annotation?.let { ann ->
+                                        val info = getTajweedInfo(ann.item)
+                                        onTajweedClick(info)
+                                    }
                                 }
                             }
                         }

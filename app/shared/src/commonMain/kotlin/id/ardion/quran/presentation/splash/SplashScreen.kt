@@ -4,11 +4,9 @@ import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.*
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
@@ -16,13 +14,11 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import bacalah.app.shared.generated.resources.Res
-import bacalah.app.shared.generated.resources.amiri
-import id.ardion.quran.constants.QuranConstants
+import bacalah.app.shared.generated.resources.*
 import id.ardion.quran.theme.IslamicBackground
 import id.ardion.quran.theme.IslamicGold
 import id.ardion.quran.theme.IslamicPrimary
-import org.jetbrains.compose.resources.Font
+import org.jetbrains.compose.resources.*
 
 @Composable
 fun SplashScreen() {
@@ -56,7 +52,7 @@ fun SplashScreen() {
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "اقْرَأْ",
+                    text = stringResource(Res.string.iqra_arabic),
                     color = Color.White,
                     fontSize = 38.sp,
                     fontWeight = FontWeight.Bold,
@@ -65,11 +61,10 @@ fun SplashScreen() {
                     )
                 )
             }
-
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = "Bacalah",
+                text = stringResource(Res.string.app_name),
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Bold,
                 color = IslamicPrimary
@@ -78,7 +73,7 @@ fun SplashScreen() {
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                text = QuranConstants.APP_TITLE,
+                text = stringResource(Res.string.app_title),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Medium,
                 color = IslamicGold

@@ -1,18 +1,18 @@
 package id.ardion.quran.presentation.surahlist
 
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import id.ardion.quran.domain.model.SurahItem
 import id.ardion.quran.domain.usecase.GetSurahListUseCase
 import id.ardion.quran.state.UiState
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class SurahListViewModel(
     private val getSurahListUseCase: GetSurahListUseCase
-) {
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow<UiState<List<SurahItem>>>(UiState.Loading)
     val uiState: StateFlow<UiState<List<SurahItem>>> = _uiState
@@ -22,21 +22,22 @@ class SurahListViewModel(
 
     private var fullSurahList: List<SurahItem> = emptyList()
 
-    private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
-
-    init {
-        loadSurahList()
-    }
-
     fun loadSurahList() {
-        scope.launch {
+        if (fullSurahList.isNotEmpty()) {
+            _uiState.value = UiState.Success(fullSurahList)
+            return
+        }
+        viewModelScope.launch {
             _uiState.value = UiState.Loading
-            getSurahListUseCase()
-                .onSuccess { list ->
-                    fullSurahList = list
-                    filterSurahList(_searchQuery.value)
-                }
-                .onFailure { _uiState.value = UiState.Error(it.message ?: "Gagal memuat surah") }
+            try {
+                val list = getSurahListUseCase()
+                fullSurahList = list
+                filterSurahList(_searchQuery.value)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Throwable) {
+                _uiState.value = UiState.Error(e.message ?: "Gagal memuat surah")
+            }
         }
     }
 

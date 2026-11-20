@@ -13,9 +13,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import id.ardion.quran.constants.QuranConstants
+import bacalah.app.shared.generated.resources.*
 import id.ardion.quran.theme.IslamicPrimary
 import id.ardion.quran.theme.IslamicTextPrimary
+import org.jetbrains.compose.resources.*
 
 @Composable
 fun ErrorScreen(
@@ -40,13 +41,13 @@ fun ErrorScreen(
             ) {
                 Icon(
                     imageVector = Icons.Default.Warning,
-                    contentDescription = "Peringatan",
+                    contentDescription = stringResource(Res.string.warning),
                     tint = MaterialTheme.colorScheme.error,
                     modifier = Modifier.size(56.dp)
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = QuranConstants.ERROR_OFFLINE_TITLE,
+                    text = stringResource(Res.string.error_offline_title),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = IslamicTextPrimary,
@@ -68,7 +69,7 @@ fun ErrorScreen(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
-                        text = QuranConstants.BTN_RETRY,
+                        text = stringResource(Res.string.retry),
                         fontWeight = FontWeight.Bold,
                         fontSize = 15.sp,
                         color = Color.White

@@ -180,6 +180,8 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = iosApp/Info.plist;
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Aplikasi membutuhkan akses lokasi untuk menghitung Jadwal Sholat dan Arah Kiblat secara akurat.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Aplikasi membutuhkan akses lokasi untuk menghitung Jadwal Sholat dan Arah Kiblat secara akurat.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -273,6 +275,8 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = iosApp/Info.plist;
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Aplikasi membutuhkan akses lokasi untuk menghitung Jadwal Sholat dan Arah Kiblat secara akurat.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Aplikasi membutuhkan akses lokasi untuk menghitung Jadwal Sholat dan Arah Kiblat secara akurat.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

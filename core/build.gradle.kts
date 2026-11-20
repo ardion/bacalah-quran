@@ -59,6 +59,7 @@ kotlin {
         }
         androidMain.dependencies {
             implementation(libs.ktor.clientOkhttp)
+            implementation(libs.chucker.debug)
         }
         iosMain.dependencies {
             implementation(libs.ktor.clientDarwin)

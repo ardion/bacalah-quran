@@ -7,6 +7,7 @@ actual object KVStorage {
     private var prefs: SharedPreferences? = null
 
     fun init(context: Context) {
+        ContextHolder.appContext = context.applicationContext
         if (prefs == null) {
             prefs = context.applicationContext.getSharedPreferences("bacalah_quran_prefs", Context.MODE_PRIVATE)
         }

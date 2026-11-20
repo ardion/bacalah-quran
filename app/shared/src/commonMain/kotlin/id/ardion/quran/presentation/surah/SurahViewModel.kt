@@ -1,21 +1,25 @@
 package id.ardion.quran.presentation.surah
 
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import id.ardion.quran.audio.AudioPlayer
 import id.ardion.quran.domain.model.AyahDetail
 import id.ardion.quran.domain.model.SurahDetail
+import id.ardion.quran.domain.usecase.ClearLastReadUseCase
 import id.ardion.quran.domain.usecase.GetSurahDetailUseCase
+import id.ardion.quran.domain.usecase.SaveLastReadSurahUseCase
 import id.ardion.quran.state.UiState
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class SurahDetailViewModel(
     private val getSurahDetailUseCase: GetSurahDetailUseCase,
+    private val saveLastReadSurahUseCase: SaveLastReadSurahUseCase,
+    private val clearLastReadUseCase: ClearLastReadUseCase,
     private val audioPlayer: AudioPlayer
-) {
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow<UiState<SurahDetail>>(UiState.Loading)
     val uiState: StateFlow<UiState<SurahDetail>> = _uiState
@@ -28,17 +32,26 @@ class SurahDetailViewModel(
 
     private var currentPlayingAyahIndex: Int = 0
 
-    private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+    fun saveLastRead(surahNumber: Int, surahName: String, ayahNumber: Int) {
+        saveLastReadSurahUseCase(surahNumber, surahName, ayahNumber)
+    }
+
+    fun clearLastRead() {
+        clearLastReadUseCase.clearSurah()
+    }
 
     fun loadSurah(surahNumber: Int) {
         currentPlayingAyahIndex = 0
-        scope.launch {
+        viewModelScope.launch {
             _uiState.value = UiState.Loading
-            getSurahDetailUseCase(surahNumber)
-                .onSuccess { surahDetail ->
-                    _uiState.value = UiState.Success(surahDetail)
-                }
-                .onFailure { _uiState.value = UiState.Error(it.message ?: "Gagal memuat detail") }
+            try {
+                val surahDetail = getSurahDetailUseCase(surahNumber)
+                _uiState.value = UiState.Success(surahDetail)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Throwable) {
+                _uiState.value = UiState.Error(e.message ?: "Gagal memuat detail")
+            }
         }
     }
 
@@ -100,7 +113,8 @@ class SurahDetailViewModel(
         audioPlayer.stop()
     }
 
-    fun onCleared() {
+    override fun onCleared() {
+        super.onCleared()
         stopFullSurah()
     }
 }

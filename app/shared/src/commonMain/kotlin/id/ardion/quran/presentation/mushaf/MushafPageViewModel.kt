@@ -1,21 +1,25 @@
 package id.ardion.quran.presentation.mushaf
 
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import id.ardion.quran.audio.AudioPlayer
 import id.ardion.quran.domain.model.AyahDetail
 import id.ardion.quran.domain.model.PageDetail
+import id.ardion.quran.domain.usecase.ClearLastReadUseCase
 import id.ardion.quran.domain.usecase.GetPageDetailUseCase
+import id.ardion.quran.domain.usecase.SaveLastReadPageUseCase
 import id.ardion.quran.state.UiState
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class MushafPageViewModel(
     private val getPageDetailUseCase: GetPageDetailUseCase,
+    private val saveLastReadPageUseCase: SaveLastReadPageUseCase,
+    private val clearLastReadUseCase: ClearLastReadUseCase,
     private val audioPlayer: AudioPlayer
-) {
+) : ViewModel() {
 
     private val pageCache = mutableMapOf<Int, UiState<PageDetail>>()
 
@@ -31,7 +35,13 @@ class MushafPageViewModel(
     private var currentPlayingAyahIndex: Int = 0
     private var currentPage: Int = 0
 
-    private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+    fun saveLastReadPage(pageNumber: Int, surahName: String = "", ayahNumber: Int = 1) {
+        saveLastReadPageUseCase(pageNumber, surahName, ayahNumber)
+    }
+
+    fun clearLastReadPage() {
+        clearLastReadUseCase.clearMushaf()
+    }
 
     fun loadPage(pageNumber: Int) {
         if (currentPage == pageNumber && _uiState.value is UiState.Success) return
@@ -45,21 +55,22 @@ class MushafPageViewModel(
         }
 
         _uiState.value = UiState.Loading
-        scope.launch {
-            getPageDetailUseCase(pageNumber)
-                .onSuccess { pageDetail ->
-                    val successState = UiState.Success(pageDetail)
-                    pageCache[pageNumber] = successState
-                    if (currentPage == pageNumber) {
-                        _uiState.value = successState
-                    }
+        viewModelScope.launch {
+            try {
+                val pageDetail = getPageDetailUseCase(pageNumber)
+                val successState = UiState.Success(pageDetail)
+                pageCache[pageNumber] = successState
+                if (currentPage == pageNumber) {
+                    _uiState.value = successState
                 }
-                .onFailure { error ->
-                    val errorState = UiState.Error(error.message ?: "Gagal memuat halaman $pageNumber")
-                    if (currentPage == pageNumber) {
-                        _uiState.value = errorState
-                    }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Throwable) {
+                val errorState = UiState.Error(e.message ?: "Gagal memuat halaman $pageNumber")
+                if (currentPage == pageNumber) {
+                    _uiState.value = errorState
                 }
+            }
         }
     }
 
@@ -123,7 +134,8 @@ class MushafPageViewModel(
         audioPlayer.stop()
     }
 
-    fun onCleared() {
+    override fun onCleared() {
+        super.onCleared()
         stopAudio()
     }
 }

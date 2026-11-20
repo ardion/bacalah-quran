@@ -1,6 +1,8 @@
-package id.ardion.quran.domain.manager
+package id.ardion.quran.data.repository
 
+import id.ardion.quran.domain.irepository.LastReadRepository
 import id.ardion.quran.domain.model.LastReadInfo
+import id.ardion.quran.domain.model.MultiLastReadInfo
 import id.ardion.quran.domain.model.ReadMode
 import id.ardion.quran.utils.KVStorage
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -8,19 +10,14 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
-data class MultiLastReadInfo(
-    val surahLastRead: LastReadInfo? = null,
-    val mushafLastRead: LastReadInfo? = null
-)
-
-object LastReadManager {
+class LastReadRepositoryImpl : LastReadRepository {
     private val json = Json { ignoreUnknownKeys = true }
 
-    private const val KEY_SURAH = "key_surah_last_read"
-    private const val KEY_MUSHAF = "key_mushaf_last_read"
+    private val keySurah = "key_surah_last_read"
+    private val keyMushaf = "key_mushaf_last_read"
 
     private fun loadSurahFromStorage(): LastReadInfo? {
-        val str = KVStorage.getString(KEY_SURAH) ?: return null
+        val str = KVStorage.getString(keySurah) ?: return null
         return try {
             json.decodeFromString<LastReadInfo>(str)
         } catch (_: Exception) {
@@ -29,7 +26,7 @@ object LastReadManager {
     }
 
     private fun loadMushafFromStorage(): LastReadInfo? {
-        val str = KVStorage.getString(KEY_MUSHAF) ?: return null
+        val str = KVStorage.getString(keyMushaf) ?: return null
         return try {
             json.decodeFromString<LastReadInfo>(str)
         } catch (_: Exception) {
@@ -43,9 +40,9 @@ object LastReadManager {
             mushafLastRead = loadMushafFromStorage()
         )
     )
-    val multiLastRead: StateFlow<MultiLastReadInfo> = _multiLastRead
+    override val multiLastRead: StateFlow<MultiLastReadInfo> = _multiLastRead
 
-    fun saveLastReadSurah(surahNumber: Int, surahName: String, ayahNumber: Int) {
+    override fun saveLastReadSurah(surahNumber: Int, surahName: String, ayahNumber: Int) {
         val info = LastReadInfo(
             readMode = ReadMode.SURAH,
             surahNumber = surahNumber,
@@ -53,12 +50,12 @@ object LastReadManager {
             ayahNumber = ayahNumber
         )
         try {
-            KVStorage.putString(KEY_SURAH, json.encodeToString(info))
+            KVStorage.putString(keySurah, json.encodeToString(info))
         } catch (_: Exception) {}
         _multiLastRead.value = _multiLastRead.value.copy(surahLastRead = info)
     }
 
-    fun saveLastReadPage(pageNumber: Int, surahName: String = "", ayahNumber: Int = 1) {
+    override fun saveLastReadPage(pageNumber: Int, surahName: String, ayahNumber: Int) {
         val info = LastReadInfo(
             readMode = ReadMode.MUSHAF,
             pageNumber = pageNumber,
@@ -66,18 +63,18 @@ object LastReadManager {
             ayahNumber = ayahNumber
         )
         try {
-            KVStorage.putString(KEY_MUSHAF, json.encodeToString(info))
+            KVStorage.putString(keyMushaf, json.encodeToString(info))
         } catch (_: Exception) {}
         _multiLastRead.value = _multiLastRead.value.copy(mushafLastRead = info)
     }
 
-    fun clearSurahLastRead() {
-        KVStorage.remove(KEY_SURAH)
+    override fun clearSurahLastRead() {
+        KVStorage.remove(keySurah)
         _multiLastRead.value = _multiLastRead.value.copy(surahLastRead = null)
     }
 
-    fun clearMushafLastRead() {
-        KVStorage.remove(KEY_MUSHAF)
+    override fun clearMushafLastRead() {
+        KVStorage.remove(keyMushaf)
         _multiLastRead.value = _multiLastRead.value.copy(mushafLastRead = null)
     }
 }

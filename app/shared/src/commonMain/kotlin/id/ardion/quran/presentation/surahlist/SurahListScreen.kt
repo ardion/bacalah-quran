@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -23,8 +24,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import bacalah.app.shared.generated.resources.Res
-import bacalah.app.shared.generated.resources.amiri
+import bacalah.app.shared.generated.resources.*
 import id.ardion.quran.domain.model.SurahItem
 import id.ardion.quran.presentation.components.ErrorScreen
 import id.ardion.quran.presentation.components.SurahListShimmer
@@ -33,7 +33,7 @@ import id.ardion.quran.theme.IslamicBackground
 import id.ardion.quran.theme.IslamicGold
 import id.ardion.quran.theme.IslamicPrimary
 import id.ardion.quran.theme.IslamicTextPrimary
-import org.jetbrains.compose.resources.Font
+import org.jetbrains.compose.resources.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -45,12 +45,16 @@ fun SurahListScreen(
     val state by viewModel.uiState.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
 
+    LaunchedEffect(Unit) {
+        viewModel.loadSurahList()
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
                     Text(
-                        text = "Daftar Surah",
+                        text = stringResource(Res.string.menu_surah_title),
                         fontWeight = FontWeight.Bold,
                         color = Color.White
                     )
@@ -60,7 +64,7 @@ fun SurahListScreen(
                         IconButton(onClick = backAction) {
                             Icon(
                                 Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Kembali",
+                                contentDescription = stringResource(Res.string.back),
                                 tint = Color.White
                             )
                         }
@@ -94,7 +98,7 @@ fun SurahListScreen(
                                 onValueChange = { viewModel.onSearchQueryChanged(it) },
                                 placeholder = {
                                     Text(
-                                        text = "Cari Surah",
+                                        text = stringResource(Res.string.search_surah_placeholder),
                                         color = Color.Gray,
                                         fontSize = 14.sp
                                     )
@@ -102,7 +106,7 @@ fun SurahListScreen(
                                 leadingIcon = {
                                     Icon(
                                         imageVector = Icons.Default.Search,
-                                        contentDescription = "Cari",
+                                        contentDescription = stringResource(Res.string.search_surah_placeholder),
                                         tint = IslamicPrimary
                                     )
                                 },
@@ -111,7 +115,7 @@ fun SurahListScreen(
                                         IconButton(onClick = { viewModel.onSearchQueryChanged("") }) {
                                             Icon(
                                                 imageVector = Icons.Default.Clear,
-                                                contentDescription = "Hapus",
+                                                contentDescription = null,
                                                 tint = Color.Gray
                                             )
                                         }
@@ -141,14 +145,14 @@ fun SurahListScreen(
                                         horizontalAlignment = Alignment.CenterHorizontally
                                     ) {
                                         Text(
-                                            text = "Surah tidak ditemukan",
+                                            text = stringResource(Res.string.surah_not_found),
                                             style = MaterialTheme.typography.titleMedium,
                                             fontWeight = FontWeight.Bold,
                                             color = IslamicTextPrimary
                                         )
                                         Spacer(modifier = Modifier.height(4.dp))
                                         Text(
-                                            text = "Coba kata kunci atau nomor surah lainnya",
+                                            text = stringResource(Res.string.surah_not_found_desc),
                                             style = MaterialTheme.typography.bodyMedium,
                                             color = Color.Gray
                                         )
@@ -227,7 +231,7 @@ fun SurahListItem(surah: SurahItem, onClick: () -> Unit) {
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "${surah.numberOfAyahs} Ayat",
+                        text = stringResource(Res.string.ayah_count_format, surah.numberOfAyahs),
                         style = MaterialTheme.typography.bodySmall,
                         color = Color.Gray
                     )
