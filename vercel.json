@@ -1,6 +1,6 @@
 {
-  "buildCommand": "chmod +x gradlew && ./gradlew :app:webApp:jsBrowserDistribution --no-daemon -Dorg.gradle.jvmargs=-Xmx2048m",
-  "outputDirectory": "app/webApp/build/dist/js/productionExecutable",
+  "buildCommand": "chmod +x gradlew && ./gradlew :app:webApp:jsBrowserDevelopmentExecutableDistribution --no-daemon -Dorg.gradle.jvmargs=-Xmx2048m",
+  "outputDirectory": "app/webApp/build/dist/js/developmentExecutable",
   "framework": null,
   "rewrites": [
     {
