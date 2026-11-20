@@ -8,7 +8,11 @@ plugins {
 
 kotlin {
     js {
-        browser()
+        browser {
+            commonWebpackConfig {
+                sourceMaps = false
+            }
+        }
         binaries.executable()
     }
 
@@ -21,7 +25,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(project(":app:shared"))
-
+            implementation(libs.koinCore)
             implementation(libs.compose.ui)
         }
     }
