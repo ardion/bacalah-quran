@@ -1,5 +1,5 @@
 {
-  "buildCommand": "./gradlew :app:webApp:wasmJsBrowserDistribution",
-  "outputDirectory": "app/webApp/build/dist/wasmJs/productionExecutable",
+  "buildCommand": "./gradlew :app:webApp:jsBrowserDistribution",
+  "outputDirectory": "app/webApp/build/dist/js/productionExecutable",
   "framework": null
 }
