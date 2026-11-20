@@ -1,5 +1,11 @@
 {
-  "buildCommand": "./gradlew :app:webApp:wasmJsBrowserDistribution",
-  "outputDirectory": "app/webApp/build/dist/wasmJs/productionExecutable",
-  "framework": null
+  "buildCommand": "chmod +x gradlew && ./gradlew :app:webApp:jsBrowserDistribution",
+  "outputDirectory": "app/webApp/build/dist/js/productionExecutable",
+  "framework": null,
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
 }
