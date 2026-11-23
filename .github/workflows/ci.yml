@@ -40,7 +40,16 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
           APK_PATH="app/androidApp/build/outputs/apk/dev/debug/androidApp-dev-debug.apk"
-          CAPTION="📦 *NEW BUILD AVAILABLE!*%0A%0A📱 *App*: Bacalah Al-Quran%0A🔢 *Build*: #${{ github.run_number }}%0A🌿 *Branch*: ${{ github.ref_name }}%0A🟢 *Status*: SUCCESS"
+          
+          CAPTION=$(cat <<EOF
+          📦 *NEW BUILD AVAILABLE!*
+
+          📱 *App*: Bacalah Al-Quran
+          🔢 *Build*: #${{ github.run_number }}
+          🌿 *Branch*: ${{ github.ref_name }}
+          🟢 *Status*: SUCCESS
+          EOF
+          )
           
           curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendDocument" \
             -F chat_id="${TELEGRAM_CHAT_ID}" \
@@ -54,7 +63,17 @@ jobs:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
+          MESSAGE=$(cat <<EOF
+          🔴 *BUILD FAILED!*
+
+          📱 *App*: Bacalah Al-Quran
+          🔢 *Build*: #${{ github.run_number }}
+          🌿 *Branch*: ${{ github.ref_name }}
+          ❌ *Status*: Execution Error
+          EOF
+          )
+
           curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage" \
             -d chat_id="${TELEGRAM_CHAT_ID}" \
-            -d text="🔴 *BUILD FAILED!*%0A%0A📱 *App*: Bacalah Al-Quran%0A🔢 *Build*: #${{ github.run_number }}%0A❌ *Status*: Execution Error" \
+            -d text="${MESSAGE}" \
             -d parse_mode="Markdown"

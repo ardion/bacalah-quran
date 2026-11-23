@@ -29,7 +29,12 @@ pipeline {
             steps {
                 script {
                     def apkPath = "app/androidApp/build/outputs/apk/dev/debug/androidApp-dev-debug.apk"
-                    def caption = "📦 *NEW BUILD AVAILABLE!*%0A%0A📱 *App*: Bacalah Al-Quran%0A🔢 *Build*: #${BUILD_NUMBER}%0A🌿 *Branch*: ${BRANCH_NAME}%0A🟢 *Status*: SUCCESS"
+                    def caption = """📦 *NEW BUILD AVAILABLE!*
+
+📱 *App*: Bacalah Al-Quran
+🔢 *Build*: #${BUILD_NUMBER}
+🌿 *Branch*: ${BRANCH_NAME}
+🟢 *Status*: SUCCESS"""
 
                     sh """
                         curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendDocument" \
@@ -45,12 +50,20 @@ pipeline {
 
     post {
         failure {
-            sh """
-                curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage" \
-                -d chat_id="${TELEGRAM_CHAT_ID}" \
-                -d text="🔴 *BUILD FAILED!*%0A%0A📱 *App*: Bacalah Al-Quran%0A🔢 *Build*: #${BUILD_NUMBER}%0A❌ *Status*: Execution Error" \
-                -d parse_mode="Markdown"
-            """
+            script {
+                def failMsg = """🔴 *BUILD FAILED!*
+
+📱 *App*: Bacalah Al-Quran
+🔢 *Build*: #${BUILD_NUMBER}
+❌ *Status*: Execution Error"""
+
+                sh """
+                    curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage" \
+                    -d chat_id="${TELEGRAM_CHAT_ID}" \
+                    -d text="${failMsg}" \
+                    -d parse_mode="Markdown"
+                """
+            }
         }
     }
 }
