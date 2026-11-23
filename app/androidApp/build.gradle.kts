@@ -24,7 +24,10 @@ android {
 
     signingConfigs {
         getByName("debug") {
-            storeFile = file("${System.getProperty("user.home")}/.android/debug.keystore")
+            val localKeystore = file("${System.getProperty("user.home")}/.android/debug.keystore")
+            if (localKeystore.exists()) {
+                storeFile = localKeystore
+            }
         }
     }
 
