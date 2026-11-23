@@ -1,0 +1,55 @@
+name: Bacalah KMP CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-notify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 1. Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 2. Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'zulu'
+
+      - name: 3. Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: 4. Build Android APK & Web Distribution
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:androidApp:assembleDevDebug :app:webApp:jsBrowserDistribution --no-daemon
+
+      - name: 5. Send APK & Notification to Telegram Group
+        if: success()
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          APK_PATH="app/androidApp/build/outputs/apk/dev/debug/androidApp-dev-debug.apk"
+          CAPTION="📦 *NEW BUILD AVAILABLE!*%0A%0A📱 *App*: Bacalah Al-Quran%0A🔢 *Build*: #${{ github.run_number }}%0A🌿 *Branch*: ${{ github.ref_name }}%0A🟢 *Status*: SUCCESS"
+          
+          curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendDocument" \
+            -F chat_id="${TELEGRAM_CHAT_ID}" \
+            -F document=@"${APK_PATH}" \
+            -F caption="${CAPTION}" \
+            -F parse_mode="Markdown"
+
+      - name: 6. Send Failure Notification
+        if: failure()
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage" \
+            -d chat_id="${TELEGRAM_CHAT_ID}" \
+            -d text="🔴 *BUILD FAILED!*%0A%0A📱 *App*: Bacalah Al-Quran%0A🔢 *Build*: #${{ github.run_number }}%0A❌ *Status*: Execution Error" \
+            -d parse_mode="Markdown"
