@@ -1,5 +1,6 @@
 package id.ardion.quran.di
 
+import id.ardion.quran.data.remote.KemenagApiService
 import id.ardion.quran.data.remote.PrayerApiService
 import id.ardion.quran.data.remote.QuranApiService
 import id.ardion.quran.data.repository.LastReadRepositoryImpl
@@ -8,6 +9,7 @@ import id.ardion.quran.data.repository.QuranRepositoryImpl
 import id.ardion.quran.domain.repository.LastReadRepository
 import id.ardion.quran.domain.repository.PrayerRepository
 import id.ardion.quran.domain.repository.QuranRepository
+import id.ardion.quran.domain.time.TodayProvider
 import id.ardion.quran.domain.usecase.ClearMushafLastReadUseCase
 import id.ardion.quran.domain.usecase.ClearSurahLastReadUseCase
 import id.ardion.quran.domain.usecase.GetLastReadUseCase
@@ -21,6 +23,7 @@ import id.ardion.quran.presentation.home.HomeViewModel
 import id.ardion.quran.presentation.mushaf.MushafPageViewModel
 import id.ardion.quran.presentation.prayer.PrayerViewModel
 import id.ardion.quran.presentation.surah.SurahDetailViewModel
+import id.ardion.quran.platform.SystemTodayProvider
 import id.ardion.quran.presentation.surahlist.SurahListViewModel
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
@@ -31,6 +34,8 @@ import org.koin.dsl.module
 private val dataModule = module {
     singleOf(::QuranApiService)
     singleOf(::PrayerApiService)
+    singleOf(::KemenagApiService)
+    single<TodayProvider> { SystemTodayProvider() }
     singleOf(::QuranRepositoryImpl) { bind<QuranRepository>() }
     singleOf(::PrayerRepositoryImpl) { bind<PrayerRepository>() }
     singleOf(::LastReadRepositoryImpl) { bind<LastReadRepository>() }

@@ -13,6 +13,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import id.ardion.quran.domain.model.PrayerTimes
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.number
 import id.ardion.quran.presentation.theme.IslamicGold
 import id.ardion.quran.presentation.theme.IslamicPrimary
 import bacalah.app.shared.generated.resources.*
@@ -76,7 +78,7 @@ private fun LocationHeader(prayerTimes: PrayerTimes) {
                 contentColor = Color.White
             ) {
                 Text(
-                    text = prayerTimes.dateReadable,
+                    text = formatDate(prayerTimes.date),
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
@@ -113,3 +115,10 @@ private fun LocationHeader(prayerTimes: PrayerTimes) {
 private const val COORDINATE_SCALE = 10_000.0
 
 private fun formatCoord(value: Double): String = ((value * COORDINATE_SCALE).roundToLong() / COORDINATE_SCALE).toString()
+
+@Composable
+private fun formatDate(date: LocalDate): String {
+    val monthNames = stringArrayResource(Res.array.month_short_names)
+    val monthName = monthNames.getOrNull(date.month.number - 1).orEmpty()
+    return stringResource(Res.string.date_format, date.day, monthName, date.year)
+}

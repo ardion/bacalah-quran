@@ -12,6 +12,10 @@ object ApiConfig {
 
     const val PRAYER_CALCULATION_METHOD = 20
 
+    const val KEMENAG_IHTIYATH_TUNE = "3,3,-3,4,2,3,0,3,0"
+
+    const val KEMENAG_SCHEDULE_URL = "https://api.myquran.com/v2/sholat"
+
     const val NOMINATIM_REVERSE_URL = "https://nominatim.openstreetmap.org/reverse"
     const val NOMINATIM_USER_AGENT = "BacalahQuranApp/1.0"
     const val BIGDATACLOUD_REVERSE_URL = "https://api.bigdatacloud.net/data/reverse-geocode-client"

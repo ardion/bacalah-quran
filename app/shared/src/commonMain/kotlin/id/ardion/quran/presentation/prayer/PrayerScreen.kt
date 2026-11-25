@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import id.ardion.quran.domain.model.PrayerTimeSource
 import id.ardion.quran.domain.model.PrayerTimes
 import id.ardion.quran.presentation.components.ErrorScreen
 import id.ardion.quran.presentation.components.SurahListShimmer
@@ -27,6 +28,7 @@ import id.ardion.quran.state.UiState
 import id.ardion.quran.presentation.theme.IslamicBackground
 import id.ardion.quran.presentation.theme.IslamicPrimary
 import id.ardion.quran.presentation.theme.IslamicTextPrimary
+import id.ardion.quran.presentation.theme.IslamicTextSecondary
 import bacalah.app.shared.generated.resources.*
 import org.jetbrains.compose.resources.*
 
@@ -126,13 +128,24 @@ fun PrayerContent(
         }
 
         item {
-            Text(
-                text = stringResource(Res.string.prayer_today_title),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = IslamicTextPrimary,
-                modifier = Modifier.fillMaxWidth()
-            )
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    text = stringResource(Res.string.prayer_today_title),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = IslamicTextPrimary
+                )
+                Text(
+                    text = stringResource(
+                        when (prayerTimes.source) {
+                            PrayerTimeSource.KEMENAG -> Res.string.prayer_source_kemenag
+                            PrayerTimeSource.CALCULATED -> Res.string.prayer_source_calculated
+                        }
+                    ),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = IslamicTextSecondary
+                )
+            }
         }
 
         item { PrayerItemCard(stringResource(Res.string.prayer_fajr), prayerTimes.fajr, Icons.Default.WbTwilight) }

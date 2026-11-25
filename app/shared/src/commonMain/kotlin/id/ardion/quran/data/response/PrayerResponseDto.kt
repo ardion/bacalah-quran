@@ -10,8 +10,7 @@ data class AladhanResponseDto(
 
 @Serializable
 data class AladhanDataDto(
-    @SerialName("timings") val timings: TimingsDto? = null,
-    @SerialName("date") val date: DateDto? = null
+    @SerialName("timings") val timings: TimingsDto? = null
 )
 
 @Serializable
@@ -22,23 +21,6 @@ data class TimingsDto(
     @SerialName("Asr") val asr: String? = null,
     @SerialName("Maghrib") val maghrib: String? = null,
     @SerialName("Isha") val isha: String? = null
-)
-
-@Serializable
-data class DateDto(
-    @SerialName("readable") val readable: String? = null,
-    @SerialName("hijri") val hijri: HijriDateDto? = null
-)
-
-@Serializable
-data class HijriDateDto(
-    @SerialName("date") val date: String? = null,
-    @SerialName("month") val month: HijriMonthDto? = null
-)
-
-@Serializable
-data class HijriMonthDto(
-    @SerialName("en") val en: String? = null
 )
 
 @Serializable
@@ -53,7 +35,9 @@ data class NominatimAddressDto(
     @SerialName("neighbourhood") val neighbourhood: String? = null,
     @SerialName("city_district") val cityDistrict: String? = null,
     @SerialName("city") val city: String? = null,
-    @SerialName("town") val town: String? = null
+    @SerialName("town") val town: String? = null,
+    @SerialName("county") val county: String? = null,
+    @SerialName("country_code") val countryCode: String? = null
 )
 
 @Serializable

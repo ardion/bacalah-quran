@@ -2,36 +2,70 @@ package id.ardion.quran.data.mapper
 
 import id.ardion.quran.data.response.AladhanDataDto
 import id.ardion.quran.data.response.GeocodeResponseDto
+import id.ardion.quran.data.response.KemenagDayDto
 import id.ardion.quran.data.response.NominatimAddressDto
 import id.ardion.quran.domain.model.LocationCoordinates
+import id.ardion.quran.domain.model.PrayerTimeSource
 import id.ardion.quran.domain.model.PrayerTimes
+import kotlinx.datetime.LocalDate
 
 const val MISSING_TIME = "--:--"
-private const val MISSING_DATE = "-"
 
-fun AladhanDataDto.toDomain(
-    location: LocationCoordinates,
-    qiblaBearing: Double,
-    locationName: String?,
-    isLiveLocation: Boolean
-): PrayerTimes? {
+data class PrayerContext(
+    val location: LocationCoordinates,
+    val qiblaBearing: Double,
+    val locationName: String?,
+    val isLiveLocation: Boolean,
+    val date: LocalDate
+)
+
+fun AladhanDataDto.toDomain(context: PrayerContext): PrayerTimes? {
     val times = timings ?: return null
-    return PrayerTimes(
+    return context.toPrayerTimes(
         fajr = times.fajr ?: MISSING_TIME,
         sunrise = times.sunrise ?: MISSING_TIME,
         dhuhr = times.dhuhr ?: MISSING_TIME,
         asr = times.asr ?: MISSING_TIME,
         maghrib = times.maghrib ?: MISSING_TIME,
         isha = times.isha ?: MISSING_TIME,
-        dateReadable = date?.readable ?: MISSING_DATE,
-        hijriDate = listOfNotNull(date?.hijri?.date, date?.hijri?.month?.en).joinToString(" "),
-        latitude = location.latitude,
-        longitude = location.longitude,
-        qiblaBearing = qiblaBearing,
-        locationName = locationName,
-        isLiveLocation = isLiveLocation
+        source = PrayerTimeSource.CALCULATED
     )
 }
+
+fun KemenagDayDto.toDomain(context: PrayerContext): PrayerTimes? =
+    context.toPrayerTimes(
+        fajr = fajr ?: return null,
+        sunrise = sunrise ?: return null,
+        dhuhr = dhuhr ?: return null,
+        asr = asr ?: return null,
+        maghrib = maghrib ?: return null,
+        isha = isha ?: return null,
+        source = PrayerTimeSource.KEMENAG
+    )
+
+private fun PrayerContext.toPrayerTimes(
+    fajr: String,
+    sunrise: String,
+    dhuhr: String,
+    asr: String,
+    maghrib: String,
+    isha: String,
+    source: PrayerTimeSource
+) = PrayerTimes(
+    fajr = fajr,
+    sunrise = sunrise,
+    dhuhr = dhuhr,
+    asr = asr,
+    maghrib = maghrib,
+    isha = isha,
+    date = date,
+    latitude = location.latitude,
+    longitude = location.longitude,
+    qiblaBearing = qiblaBearing,
+    locationName = locationName,
+    isLiveLocation = isLiveLocation,
+    source = source
+)
 
 private val administrativePrefixes = listOf("Kelurahan ", "Kecamatan ", "Kota ", "Kabupaten ")
 

@@ -66,6 +66,23 @@
     <string name="prayer_screen_title">Jadwal Sholat &amp; Kompas Kiblat</string>
     <string name="location_region">Lokasi Wilayah</string>
     <string name="prayer_today_title">Jadwal Sholat Hari Ini</string>
+    <string name="prayer_source_kemenag">Sumber: Kemenag RI (Bimas Islam)</string>
+    <string name="prayer_source_calculated">Perkiraan perhitungan, bukan jadwal resmi Kemenag</string>
+    <string name="date_format">%1$d %2$s %3$d</string>
+    <string-array name="month_short_names">
+        <item>Jan</item>
+        <item>Feb</item>
+        <item>Mar</item>
+        <item>Apr</item>
+        <item>Mei</item>
+        <item>Jun</item>
+        <item>Jul</item>
+        <item>Agu</item>
+        <item>Sep</item>
+        <item>Okt</item>
+        <item>Nov</item>
+        <item>Des</item>
+    </string-array>
     <string name="prayer_fajr">Subuh</string>
     <string name="prayer_sunrise">Terbit</string>
     <string name="prayer_dhuhr">Dzuhur</string>

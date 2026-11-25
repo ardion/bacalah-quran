@@ -22,6 +22,7 @@ class PrayerApiService(private val httpClient: HttpClient) {
             parameter("latitude", location.latitude)
             parameter("longitude", location.longitude)
             parameter("method", ApiConfig.PRAYER_CALCULATION_METHOD)
+            parameter("tune", ApiConfig.KEMENAG_IHTIYATH_TUNE)
         }.body()
 
     suspend fun fetchReverseGeocodeNominatim(location: LocationCoordinates): NominatimResponseDto =
@@ -32,6 +33,7 @@ class PrayerApiService(private val httpClient: HttpClient) {
             parameter("lon", location.longitude)
             parameter("zoom", NOMINATIM_STREET_ZOOM)
             parameter("addressdetails", 1)
+            parameter("accept-language", GEOCODE_LANGUAGE)
         }.body()
 
     suspend fun fetchReverseGeocodeBigData(location: LocationCoordinates): GeocodeResponseDto =

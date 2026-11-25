@@ -97,6 +97,7 @@ kotlin {
             implementation(libs.ktor.serializationKotlinxJson)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.kotlinxCoroutinesCore)
+            implementation(libs.kotlinxDatetime)
 
             api(libs.koinCore)
             implementation(libs.koinCompose)
