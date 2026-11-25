@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -33,6 +34,10 @@ import bacalah.app.shared.generated.resources.Res
 import bacalah.app.shared.generated.resources.reminder_adzan_credit
 import bacalah.app.shared.generated.resources.reminder_enable_hint
 import bacalah.app.shared.generated.resources.reminder_exact_alarm_action
+import bacalah.app.shared.generated.resources.reminder_exact_alarm_dialog_body
+import bacalah.app.shared.generated.resources.reminder_exact_alarm_dialog_confirm
+import bacalah.app.shared.generated.resources.reminder_exact_alarm_dialog_dismiss
+import bacalah.app.shared.generated.resources.reminder_exact_alarm_dialog_title
 import bacalah.app.shared.generated.resources.reminder_exact_alarm_warning
 import bacalah.app.shared.generated.resources.reminder_mode_adzan
 import bacalah.app.shared.generated.resources.reminder_mode_notification
@@ -56,10 +61,21 @@ fun ReminderSettingsCard(viewModel: ReminderSettingsViewModel) {
 
     val requester = rememberNotificationPermissionRequester()
     var isPermissionDenied by remember { mutableStateOf(false) }
+    var showExactAlarmDialog by remember { mutableStateOf(false) }
 
     LifecycleResumeEffect(viewModel) {
         viewModel.refreshExactAlarmStatus()
         onPauseOrDispose { }
+    }
+
+    if (showExactAlarmDialog) {
+        ExactAlarmDialog(
+            onConfirm = {
+                showExactAlarmDialog = false
+                viewModel.openExactAlarmSettings()
+            },
+            onDismiss = { showExactAlarmDialog = false }
+        )
     }
 
     Card(
@@ -80,7 +96,10 @@ fun ReminderSettingsCard(viewModel: ReminderSettingsViewModel) {
                     } else {
                         requester.request { granted ->
                             isPermissionDenied = !granted
-                            if (granted) viewModel.setEnabled(true)
+                            if (granted) {
+                                viewModel.setEnabled(true)
+                                showExactAlarmDialog = !viewModel.state.value.canScheduleExact
+                            }
                         }
                     }
                 }
@@ -156,6 +175,26 @@ private fun ExactAlarmWarning(onAction: () -> Unit) {
             Text(stringResource(Res.string.reminder_exact_alarm_action), color = IslamicPrimary)
         }
     }
+}
+
+@Composable
+private fun ExactAlarmDialog(onConfirm: () -> Unit, onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = Color.White,
+        title = { Text(stringResource(Res.string.reminder_exact_alarm_dialog_title), color = IslamicTextPrimary) },
+        text = { Text(stringResource(Res.string.reminder_exact_alarm_dialog_body), color = IslamicTextSecondary) },
+        confirmButton = {
+            TextButton(onClick = onConfirm) {
+                Text(stringResource(Res.string.reminder_exact_alarm_dialog_confirm), color = IslamicPrimary)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(Res.string.reminder_exact_alarm_dialog_dismiss), color = IslamicTextSecondary)
+            }
+        }
+    )
 }
 
 @Composable

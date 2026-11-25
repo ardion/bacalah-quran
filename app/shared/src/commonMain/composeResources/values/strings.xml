@@ -76,6 +76,10 @@
     <string name="reminder_permission_denied">Izin notifikasi ditolak. Aktifkan lewat pengaturan aplikasi.</string>
     <string name="reminder_exact_alarm_warning">Pengingat bisa terlambat beberapa menit karena izin alarm tepat waktu belum diberikan.</string>
     <string name="reminder_exact_alarm_action">Beri izin</string>
+    <string name="reminder_exact_alarm_dialog_title">Izinkan alarm tepat waktu</string>
+    <string name="reminder_exact_alarm_dialog_body">Supaya notifikasi dan azan berbunyi tepat saat masuk waktu sholat, nyalakan "Alarm &amp; pengingat" untuk Bacalah di halaman berikutnya.</string>
+    <string name="reminder_exact_alarm_dialog_confirm">Buka pengaturan</string>
+    <string name="reminder_exact_alarm_dialog_dismiss">Nanti saja</string>
     <string name="reminder_adzan_credit">Suara azan: Aaqib Azeez, CC BY-SA 4.0</string>
     <string name="prayer_source_kemenag">Sumber: Kemenag RI (Bimas Islam)</string>
     <string name="prayer_source_calculated">Perkiraan perhitungan, bukan jadwal resmi Kemenag</string>
