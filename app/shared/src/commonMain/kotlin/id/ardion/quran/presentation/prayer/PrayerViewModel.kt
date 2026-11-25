@@ -2,8 +2,11 @@ package id.ardion.quran.presentation.prayer
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import id.ardion.quran.domain.model.LocationCoordinates
 import id.ardion.quran.domain.model.PrayerTimes
+import id.ardion.quran.domain.model.ReminderLocation
 import id.ardion.quran.domain.usecase.GetPrayerTimesUseCase
+import id.ardion.quran.domain.usecase.UpdateReminderLocationUseCase
 import id.ardion.quran.platform.CompassSensor
 import id.ardion.quran.state.UiState
 import kotlinx.coroutines.Job
@@ -19,7 +22,8 @@ private const val COMPASS_STOP_TIMEOUT_MS = 5_000L
 
 class PrayerViewModel(
     private val getPrayerTimes: GetPrayerTimesUseCase,
-    private val compassSensor: CompassSensor
+    private val compassSensor: CompassSensor,
+    private val updateReminderLocation: UpdateReminderLocationUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<UiState<PrayerTimes>>(UiState.Loading)
@@ -52,6 +56,9 @@ class PrayerViewModel(
                 .onSuccess { times ->
                     compassSensor.setLocation(times.latitude, times.longitude)
                     _uiState.value = UiState.Success(times)
+                    updateReminderLocation(
+                        ReminderLocation(LocationCoordinates(times.latitude, times.longitude), times.isLiveLocation)
+                    )
                 }
                 .onFailure { _uiState.value = UiState.Error(it) }
         }

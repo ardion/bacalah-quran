@@ -68,6 +68,15 @@
     <string name="prayer_today_title">Jadwal Sholat Hari Ini</string>
     <string name="reminder_notification_title">Waktu %1$s</string>
     <string name="reminder_notification_body">%1$s · %2$s</string>
+    <string name="reminder_title">Pengingat waktu sholat</string>
+    <string name="reminder_enable_hint">Kirim notifikasi saat masuk waktu sholat</string>
+    <string name="reminder_mode_off">Mati</string>
+    <string name="reminder_mode_notification">Notif</string>
+    <string name="reminder_mode_adzan">Azan</string>
+    <string name="reminder_permission_denied">Izin notifikasi ditolak. Aktifkan lewat pengaturan aplikasi.</string>
+    <string name="reminder_exact_alarm_warning">Pengingat bisa terlambat beberapa menit karena izin alarm tepat waktu belum diberikan.</string>
+    <string name="reminder_exact_alarm_action">Beri izin</string>
+    <string name="reminder_adzan_credit">Suara azan: Aaqib Azeez, CC BY-SA 4.0</string>
     <string name="prayer_source_kemenag">Sumber: Kemenag RI (Bimas Islam)</string>
     <string name="prayer_source_calculated">Perkiraan perhitungan, bukan jadwal resmi Kemenag</string>
     <string name="date_format">%1$d %2$s %3$d</string>

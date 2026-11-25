@@ -84,6 +84,7 @@ private fun AppNavHost(navController: NavHostController) {
         composable<NavRoute.PrayerTimes> {
             PrayerScreen(
                 viewModel = koinViewModel(),
+                reminderViewModel = koinViewModel(),
                 onBackClick = { navController.popBackStack() }
             )
         }

@@ -24,6 +24,8 @@ import id.ardion.quran.domain.model.PrayerTimeSource
 import id.ardion.quran.domain.model.PrayerTimes
 import id.ardion.quran.presentation.components.ErrorScreen
 import id.ardion.quran.presentation.components.SurahListShimmer
+import id.ardion.quran.presentation.reminder.ReminderSettingsCard
+import id.ardion.quran.presentation.reminder.ReminderSettingsViewModel
 import id.ardion.quran.state.UiState
 import id.ardion.quran.presentation.theme.IslamicBackground
 import id.ardion.quran.presentation.theme.IslamicPrimary
@@ -36,6 +38,7 @@ import org.jetbrains.compose.resources.*
 @Composable
 fun PrayerScreen(
     viewModel: PrayerViewModel,
+    reminderViewModel: ReminderSettingsViewModel,
     onBackClick: () -> Unit
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -102,7 +105,8 @@ fun PrayerScreen(
 
                 is UiState.Success -> PrayerContent(
                     prayerTimes = current.data,
-                    compass = compass
+                    compass = compass,
+                    reminderViewModel = reminderViewModel
                 )
             }
         }
@@ -112,7 +116,8 @@ fun PrayerScreen(
 @Composable
 fun PrayerContent(
     prayerTimes: PrayerTimes,
-    compass: CompassReading
+    compass: CompassReading,
+    reminderViewModel: ReminderSettingsViewModel
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -154,6 +159,8 @@ fun PrayerContent(
         item { PrayerItemCard(stringResource(Res.string.prayer_asr), prayerTimes.asr, Icons.Default.WbSunny) }
         item { PrayerItemCard(stringResource(Res.string.prayer_maghrib), prayerTimes.maghrib, Icons.Default.WbTwilight) }
         item { PrayerItemCard(stringResource(Res.string.prayer_isha), prayerTimes.isha, Icons.Default.WbTwilight) }
+
+        item { ReminderSettingsCard(reminderViewModel) }
     }
 }
 

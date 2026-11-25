@@ -19,14 +19,18 @@ import id.ardion.quran.domain.usecase.ClearSurahLastReadUseCase
 import id.ardion.quran.domain.usecase.GetLastReadUseCase
 import id.ardion.quran.domain.usecase.GetPageDetailUseCase
 import id.ardion.quran.domain.usecase.GetPrayerTimesUseCase
+import id.ardion.quran.domain.usecase.GetReminderSettingsUseCase
 import id.ardion.quran.domain.usecase.GetSurahDetailUseCase
 import id.ardion.quran.domain.usecase.GetSurahListUseCase
 import id.ardion.quran.domain.usecase.SaveMushafLastReadUseCase
+import id.ardion.quran.domain.usecase.SaveReminderSettingsUseCase
 import id.ardion.quran.domain.usecase.SaveSurahLastReadUseCase
 import id.ardion.quran.domain.usecase.ScheduleRemindersUseCase
+import id.ardion.quran.domain.usecase.UpdateReminderLocationUseCase
 import id.ardion.quran.presentation.home.HomeViewModel
 import id.ardion.quran.presentation.mushaf.MushafPageViewModel
 import id.ardion.quran.presentation.prayer.PrayerViewModel
+import id.ardion.quran.presentation.reminder.ReminderSettingsViewModel
 import id.ardion.quran.presentation.surah.SurahDetailViewModel
 import id.ardion.quran.platform.SystemTodayProvider
 import id.ardion.quran.presentation.surahlist.SurahListViewModel
@@ -61,6 +65,9 @@ private val domainModule = module {
     factoryOf(::ClearMushafLastReadUseCase)
     factoryOf(::BuildReminderEventsUseCase)
     factoryOf(::ScheduleRemindersUseCase)
+    factoryOf(::GetReminderSettingsUseCase)
+    factoryOf(::SaveReminderSettingsUseCase)
+    factoryOf(::UpdateReminderLocationUseCase)
 }
 
 private val presentationModule = module {
@@ -69,6 +76,7 @@ private val presentationModule = module {
     viewModelOf(::SurahDetailViewModel)
     viewModelOf(::MushafPageViewModel)
     viewModelOf(::PrayerViewModel)
+    viewModelOf(::ReminderSettingsViewModel)
 }
 
 val appModule = module {
