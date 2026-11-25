@@ -15,12 +15,12 @@ import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.plugins.logging.SIMPLE
 import io.ktor.serialization.kotlinx.json.json
-import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.serialization.json.Json
+import org.koin.core.scope.Scope
 
-expect fun createHttpClient(baseUrl: String = "https://api.alquran.cloud/v1/"): HttpClient
+internal expect fun Scope.createPlatformHttpClient(baseUrl: String): HttpClient
 
-fun HttpClientConfig<*>.configureHttpClient(baseUrl: String) {
+internal fun HttpClientConfig<*>.configureHttpClient(baseUrl: String) {
     expectSuccess = true
     defaultRequest {
         url(baseUrl)
@@ -29,12 +29,12 @@ fun HttpClientConfig<*>.configureHttpClient(baseUrl: String) {
         json(Json {
             ignoreUnknownKeys = true
             isLenient = true
-            prettyPrint = true
+            coerceInputValues = true
         })
     }
     install(Logging) {
         logger = Logger.SIMPLE
-        level = LogLevel.ALL
+        level = LogLevel.INFO
     }
     HttpResponseValidator {
         handleResponseExceptionWithRequest { exception, _ ->
@@ -49,22 +49,7 @@ fun HttpClientConfig<*>.configureHttpClient(baseUrl: String) {
                 }
                 is ServerResponseException -> NetworkException.ServerError(exception.response.status.value)
                 is SocketTimeoutException, is ConnectTimeoutException -> NetworkException.Timeout
-                is UnresolvedAddressException -> NetworkException.NoInternet
-                else -> {
-                    val className = exception::class.simpleName ?: ""
-                    val causeName = exception.cause?.let { it::class.simpleName } ?: ""
-                    if (className.contains("UnknownHost", ignoreCase = true) ||
-                        className.contains("UnresolvedAddress", ignoreCase = true) ||
-                        className.contains("Connect", ignoreCase = true) ||
-                        className.contains("IO", ignoreCase = true) ||
-                        causeName.contains("UnknownHost", ignoreCase = true) ||
-                        causeName.contains("UnresolvedAddress", ignoreCase = true)
-                    ) {
-                        NetworkException.NoInternet
-                    } else {
-                        NetworkException.NoInternet
-                    }
-                }
+                else -> NetworkException.NoInternet
             }
             throw domainException
         }

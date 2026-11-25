@@ -1,6 +1,6 @@
 package id.ardion.quran.domain.model
 
-import androidx.compose.ui.text.AnnotatedString
+import id.ardion.quran.tajweed.TajweedText
 
 data class SurahDetail(
     val number: Int,
@@ -16,14 +16,6 @@ data class PageDetail(
     val ayahs: List<AyahDetail>
 )
 
-data class Ayah(
-    val numberInSurah: Int,
-    val textTajweed: AnnotatedString,
-    val audioUrl: String?,
-    val juz: Int,
-    val page: Int
-)
-
 data class SurahItem(
     val number: Int,
     val name: String,
@@ -35,7 +27,7 @@ data class SurahItem(
 
 data class AyahDetail(
     val numberInSurah: Int,
-    val textTajweed: AnnotatedString,
+    val textTajweed: TajweedText,
     val translation: String,
     val transliteration: String?,
     val audioUrl: String?,

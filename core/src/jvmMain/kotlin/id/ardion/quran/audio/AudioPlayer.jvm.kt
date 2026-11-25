@@ -1,14 +1,11 @@
-@file:Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
-
 package id.ardion.quran.audio
 
-actual class AudioPlayer actual constructor() {
-    actual fun play(url: String, onCompletion: (() -> Unit)?) {
-    }
+actual class AudioPlayer actual constructor() : AudioPlayback {
+    actual override val isAvailable: Boolean = false
 
-    actual fun pause() {
-    }
+    actual override fun play(url: String, onCompletion: (() -> Unit)?) = Unit
 
-    actual fun stop() {
-    }
+    actual override fun pause() = Unit
+
+    actual override fun stop() = Unit
 }

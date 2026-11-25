@@ -56,6 +56,7 @@ kotlin {
        }
        withHostTest {
            isIncludeAndroidResources = true
+           isReturnDefaultValues = true
        }
        withDeviceTestBuilder {
            sourceSetTreeName = "test"
@@ -70,8 +71,8 @@ kotlin {
             implementation(libs.compose.uiTooling)
             implementation(libs.androidx.activity.compose)
             implementation(libs.ktor.clientOkhttp)
-            implementation("com.google.android.gms:play-services-location:21.3.0")
-            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.11.0")
+            implementation(libs.koinAndroid)
+            implementation(libs.playServicesLocation)
         }
         iosMain.dependencies {
             implementation(libs.ktor.clientDarwin) 
@@ -81,8 +82,8 @@ kotlin {
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)
             implementation(libs.compose.material3)
-            implementation("org.jetbrains.compose.material:material-icons-core:1.7.3")
-            implementation("org.jetbrains.compose.material:material-icons-extended:1.7.3")
+            implementation(libs.composeMaterialIconsCore)
+            implementation(libs.composeMaterialIconsExtended)
             implementation(libs.compose.ui)
             implementation(libs.compose.components.resources)
             implementation(libs.compose.uiToolingPreview)
@@ -91,20 +92,20 @@ kotlin {
             api(libs.androidx.lifecycle.runtimeCompose)
             api(libs.androidx.navigationCompose)
 
-            // Ktor & Serialization
             implementation(libs.ktor.clientCore)
             implementation(libs.ktor.clientContentNegotiation)
             implementation(libs.ktor.serializationKotlinxJson)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.kotlinxCoroutinesCore)
 
-            // Koin
-            implementation(libs.koinCore)
+            api(libs.koinCore)
             implementation(libs.koinCompose)
             implementation(libs.koinComposeViewmodel)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
+            implementation(libs.kotlinxCoroutinesTest)
+            implementation(libs.ktorClientMock)
         }
         jsMain.dependencies {
             implementation(libs.wrappers.browser)

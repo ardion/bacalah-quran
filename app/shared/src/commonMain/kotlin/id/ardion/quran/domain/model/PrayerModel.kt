@@ -12,6 +12,6 @@ data class PrayerTimes(
     val latitude: Double,
     val longitude: Double,
     val qiblaBearing: Double,
-    val locationName: String,
-    val isLiveLocation: Boolean = false
+    val locationName: String?,
+    val isLiveLocation: Boolean
 )

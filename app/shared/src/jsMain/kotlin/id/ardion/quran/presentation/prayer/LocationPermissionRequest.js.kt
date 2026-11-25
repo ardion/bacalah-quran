@@ -4,8 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 
 @Composable
-actual fun LocationPermissionRequest(onPermissionGranted: () -> Unit) {
+actual fun LocationPermissionRequest(onResult: (granted: Boolean) -> Unit) {
     LaunchedEffect(Unit) {
-        onPermissionGranted()
+        onResult(true)
     }
 }

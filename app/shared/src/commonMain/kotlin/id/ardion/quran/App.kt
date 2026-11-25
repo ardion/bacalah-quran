@@ -6,132 +6,94 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
-import id.ardion.quran.di.appModule
-import id.ardion.quran.domain.model.ReadMode
 import id.ardion.quran.navigation.NavRoute
+import id.ardion.quran.platform.hasNativeSplashScreen
 import id.ardion.quran.presentation.home.DashboardContent
 import id.ardion.quran.presentation.home.HomeViewModel
 import id.ardion.quran.presentation.mushaf.MushafPageScreen
-import id.ardion.quran.presentation.mushaf.MushafPageViewModel
 import id.ardion.quran.presentation.prayer.PrayerScreen
-import id.ardion.quran.presentation.prayer.PrayerViewModel
 import id.ardion.quran.presentation.splash.SplashScreen
 import id.ardion.quran.presentation.surah.SurahDetailScreen
-import id.ardion.quran.presentation.surah.SurahDetailViewModel
 import id.ardion.quran.presentation.surahlist.SurahListScreen
-import id.ardion.quran.presentation.surahlist.SurahListViewModel
-import id.ardion.quran.theme.IslamicBackground
-import id.ardion.quran.theme.IslamicPrimary
+import id.ardion.quran.presentation.theme.BacalahTheme
+import id.ardion.quran.presentation.theme.IslamicBackground
 import kotlinx.coroutines.delay
-import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.KoinApplication
-import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
+private const val SPLASH_DURATION_MS = 700L
+
 @Composable
 fun App() {
-    KoinApplication(application = { modules(appModule) }) {
-        MaterialTheme {
-            var isSplashVisible by remember { mutableStateOf(true) }
-            val navController = rememberNavController()
-
-            LaunchedEffect(Unit) {
-                delay(1800)
+    BacalahTheme {
+        var isSplashVisible by remember { mutableStateOf(!hasNativeSplashScreen) }
+        LaunchedEffect(Unit) {
+            if (isSplashVisible) {
+                delay(SPLASH_DURATION_MS)
                 isSplashVisible = false
             }
+        }
 
-            Box(modifier = Modifier.fillMaxSize().background(IslamicBackground)) {
-                AnimatedVisibility(
-                    visible = isSplashVisible,
-                    enter = fadeIn(),
-                    exit = fadeOut()
-                ) {
-                    SplashScreen()
-                }
-
-                AnimatedVisibility(
-                    visible = !isSplashVisible,
-                    enter = fadeIn(),
-                    exit = fadeOut()
-                ) {
-                    NavHost(
-                        navController = navController,
-                        startDestination = NavRoute.Dashboard
-                    ) {
-                        composable<NavRoute.Dashboard> {
-                            val homeViewModel: HomeViewModel = koinInject()
-                            val multiLastRead by homeViewModel.multiLastRead.collectAsState()
-
-                            DashboardContent(
-                                multiLastRead = multiLastRead,
-                                onOpenSurahList = { navController.navigate(NavRoute.SurahList) },
-                                onOpenMushaf = { navController.navigate(NavRoute.MushafPage) },
-                                onOpenPrayerTimes = { navController.navigate(NavRoute.PrayerTimes) },
-                                onContinueReading = { lastReadInfo ->
-                                    if (lastReadInfo.readMode == ReadMode.MUSHAF) {
-                                        navController.navigate(NavRoute.MushafPage)
-                                    } else {
-                                        navController.navigate(NavRoute.SurahDetail(lastReadInfo.surahNumber))
-                                    }
-                                }
-                            )
-                        }
-
-                        composable<NavRoute.SurahList> {
-                            val listViewModel: SurahListViewModel = koinInject()
-                            SurahListScreen(
-                                viewModel = listViewModel,
-                                onSurahClick = { surahNum ->
-                                    navController.navigate(NavRoute.SurahDetail(surahNum))
-                                },
-                                onBackClick = { navController.popBackStack() }
-                            )
-                        }
-
-                        composable<NavRoute.MushafPage> {
-                            val mushafViewModel: MushafPageViewModel = koinInject()
-                            val homeViewModel: HomeViewModel = koinInject()
-                            val multiLastRead by homeViewModel.multiLastRead.collectAsState()
-                            val mushafPage = multiLastRead.mushafLastRead?.pageNumber ?: 1
-
-                            MushafPageScreen(
-                                viewModel = mushafViewModel,
-                                initialPageNumber = mushafPage,
-                                onBackClick = { navController.popBackStack() }
-                            )
-                        }
-
-                        composable<NavRoute.PrayerTimes> {
-                            val prayerViewModel: PrayerViewModel = koinInject()
-                            PrayerScreen(
-                                viewModel = prayerViewModel,
-                                onBackClick = { navController.popBackStack() }
-                            )
-                        }
-
-                        composable<NavRoute.SurahDetail> { backStackEntry ->
-                            val route = backStackEntry.toRoute<NavRoute.SurahDetail>()
-                            val detailViewModel: SurahDetailViewModel = koinInject()
-
-                            LaunchedEffect(route.surahNumber) {
-                                detailViewModel.loadSurah(route.surahNumber)
-                            }
-
-                            SurahDetailScreen(
-                                viewModel = detailViewModel,
-                                onBackClick = { navController.popBackStack() }
-                            )
-                        }
-                    }
-                }
+        Box(modifier = Modifier.fillMaxSize().background(IslamicBackground)) {
+            AnimatedVisibility(visible = isSplashVisible, enter = fadeIn(), exit = fadeOut()) {
+                SplashScreen()
             }
+            AnimatedVisibility(visible = !isSplashVisible, enter = fadeIn(), exit = fadeOut()) {
+                AppNavHost(rememberNavController())
+            }
+        }
+    }
+}
+
+@Composable
+private fun AppNavHost(navController: NavHostController) {
+    NavHost(navController = navController, startDestination = NavRoute.Dashboard) {
+        composable<NavRoute.Dashboard> {
+            val homeViewModel: HomeViewModel = koinViewModel()
+            val lastRead by homeViewModel.lastRead.collectAsState()
+            DashboardContent(
+                lastRead = lastRead,
+                onOpenSurahList = { navController.navigate(NavRoute.SurahList) },
+                onOpenMushaf = { navController.navigate(NavRoute.MushafPage) },
+                onOpenPrayerTimes = { navController.navigate(NavRoute.PrayerTimes) },
+                onContinueSurah = { surahNumber -> navController.navigate(NavRoute.SurahDetail(surahNumber)) }
+            )
+        }
+
+        composable<NavRoute.SurahList> {
+            SurahListScreen(
+                viewModel = koinViewModel(),
+                onSurahClick = { surahNumber -> navController.navigate(NavRoute.SurahDetail(surahNumber)) },
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+
+        composable<NavRoute.MushafPage> {
+            MushafPageScreen(
+                viewModel = koinViewModel(),
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+
+        composable<NavRoute.PrayerTimes> {
+            PrayerScreen(
+                viewModel = koinViewModel(),
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+
+        composable<NavRoute.SurahDetail> { backStackEntry ->
+            SurahDetailScreen(
+                surahNumber = backStackEntry.toRoute<NavRoute.SurahDetail>().surahNumber,
+                viewModel = koinViewModel(),
+                onBackClick = { navController.popBackStack() }
+            )
         }
     }
 }

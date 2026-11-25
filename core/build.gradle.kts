@@ -5,11 +5,13 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidMultiplatformLibrary)
     alias(libs.plugins.kotlinSerialization)
-    alias(libs.plugins.composeMultiplatform)
-    alias(libs.plugins.composeCompiler)
 }
 
 kotlin {
+    compilerOptions {
+        freeCompilerArgs.add("-Xexpect-actual-classes")
+    }
+
     iosArm64()
     iosSimulatorArm64()
     
@@ -37,6 +39,7 @@ kotlin {
        }
        withHostTest {
            isIncludeAndroidResources = true
+           isReturnDefaultValues = true
        }
     }
     
@@ -49,17 +52,12 @@ kotlin {
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.kotlinxCoroutinesCore)
             implementation(libs.koinCore)
-            
-            implementation(libs.compose.ui)
-            implementation(libs.compose.foundation)
-            implementation(libs.compose.runtime)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
         }
         androidMain.dependencies {
             implementation(libs.ktor.clientOkhttp)
-            implementation(libs.chucker.debug)
         }
         iosMain.dependencies {
             implementation(libs.ktor.clientDarwin)
@@ -69,6 +67,7 @@ kotlin {
         }
         wasmJsMain.dependencies {
             implementation(libs.ktor.clientJs)
+            implementation(libs.kotlinxBrowser)
         }
     }
 }

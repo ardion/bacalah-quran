@@ -5,58 +5,58 @@ import androidx.lifecycle.viewModelScope
 import id.ardion.quran.domain.model.SurahItem
 import id.ardion.quran.domain.usecase.GetSurahListUseCase
 import id.ardion.quran.state.UiState
-import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class SurahListViewModel(
-    private val getSurahListUseCase: GetSurahListUseCase
+    private val getSurahList: GetSurahListUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<UiState<List<SurahItem>>>(UiState.Loading)
-    val uiState: StateFlow<UiState<List<SurahItem>>> = _uiState
+    val uiState: StateFlow<UiState<List<SurahItem>>> = _uiState.asStateFlow()
 
     private val _searchQuery = MutableStateFlow("")
-    val searchQuery: StateFlow<String> = _searchQuery
+    val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
 
-    private var fullSurahList: List<SurahItem> = emptyList()
+    private var allSurahs: List<SurahItem> = emptyList()
+    private var loadJob: Job? = null
 
     fun loadSurahList() {
-        if (fullSurahList.isNotEmpty()) {
-            _uiState.value = UiState.Success(fullSurahList)
+        if (allSurahs.isNotEmpty()) {
+            showFiltered()
             return
         }
-        viewModelScope.launch {
+        loadJob?.cancel()
+        loadJob = viewModelScope.launch {
             _uiState.value = UiState.Loading
-            try {
-                val list = getSurahListUseCase()
-                fullSurahList = list
-                filterSurahList(_searchQuery.value)
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Throwable) {
-                _uiState.value = UiState.Error(e.message ?: "Gagal memuat surah")
-            }
+            getSurahList()
+                .onSuccess {
+                    allSurahs = it
+                    showFiltered()
+                }
+                .onFailure { _uiState.value = UiState.Error(it) }
         }
     }
 
     fun onSearchQueryChanged(query: String) {
         _searchQuery.value = query
-        filterSurahList(query)
+        if (allSurahs.isNotEmpty()) showFiltered()
     }
 
-    private fun filterSurahList(query: String) {
-        if (query.isBlank()) {
-            _uiState.value = UiState.Success(fullSurahList)
-        } else {
-            val filtered = fullSurahList.filter { surah ->
-                surah.englishName.contains(query, ignoreCase = true) ||
-                surah.number.toString().contains(query) ||
-                surah.translation.contains(query, ignoreCase = true) ||
-                surah.name.contains(query)
-            }
-            _uiState.value = UiState.Success(filtered)
-        }
+    private fun showFiltered() {
+        _uiState.value = UiState.Success(allSurahs.filterBy(_searchQuery.value))
+    }
+}
+
+internal fun List<SurahItem>.filterBy(query: String): List<SurahItem> {
+    if (query.isBlank()) return this
+    return filter { surah ->
+        surah.englishName.contains(query, ignoreCase = true) ||
+            surah.number.toString().contains(query) ||
+            surah.translation.contains(query, ignoreCase = true) ||
+            surah.name.contains(query)
     }
 }

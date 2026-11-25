@@ -1,21 +1,21 @@
-@file:Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
-
 package id.ardion.quran.audio
 
 import kotlinx.browser.document
 import org.w3c.dom.HTMLAudioElement
 
-actual class AudioPlayer actual constructor() {
+actual class AudioPlayer actual constructor() : AudioPlayback {
+    actual override val isAvailable: Boolean = true
+
     private var audioElement: HTMLAudioElement? = null
     private var currentUrl: String? = null
 
-    actual fun play(url: String, onCompletion: (() -> Unit)?) {
+    actual override fun play(url: String, onCompletion: (() -> Unit)?) {
         if (currentUrl == url && audioElement != null) {
             audioElement?.play()
         } else {
             stop()
             currentUrl = url
-            audioElement = (document.createElement("audio") as HTMLAudioElement).apply {
+            audioElement = (document.createElement("audio") as? HTMLAudioElement)?.apply {
                 src = url
                 onended = {
                     currentUrl = null
@@ -26,11 +26,11 @@ actual class AudioPlayer actual constructor() {
         }
     }
 
-    actual fun pause() {
+    actual override fun pause() {
         audioElement?.pause()
     }
 
-    actual fun stop() {
+    actual override fun stop() {
         audioElement?.pause()
         audioElement = null
         currentUrl = null

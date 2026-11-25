@@ -1,63 +1,79 @@
-@file:Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
-
 package id.ardion.quran.audio
 
 import android.media.AudioAttributes
 import android.media.MediaPlayer
+import id.ardion.quran.logging.logWarning
 
-actual class AudioPlayer actual constructor() {
+private const val TAG = "AudioPlayer"
+
+actual class AudioPlayer actual constructor() : AudioPlayback {
+    actual override val isAvailable: Boolean = true
+
     private var mediaPlayer: MediaPlayer? = null
     private var currentUrl: String? = null
     private var isPaused = false
 
-    actual fun play(url: String, onCompletion: (() -> Unit)?) {
-        if (currentUrl == url && mediaPlayer != null) {
+    actual override fun play(url: String, onCompletion: (() -> Unit)?) {
+        val player = mediaPlayer
+        if (currentUrl == url && player != null) {
             if (isPaused) {
-                mediaPlayer?.start()
+                player.start()
                 isPaused = false
             }
-        } else {
+            return
+        }
+
+        stop()
+        currentUrl = url
+        try {
+            mediaPlayer = createPlayer(url, onCompletion)
+        } catch (e: Exception) {
+            logWarning(TAG, "Could not start $url", e)
             stop()
-            currentUrl = url
-            isPaused = false
-            mediaPlayer = MediaPlayer().apply {
-                setAudioAttributes(
-                    AudioAttributes.Builder()
-                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                        .setUsage(AudioAttributes.USAGE_MEDIA)
-                        .build()
-                )
-                setDataSource(url)
-                prepareAsync()
-                setOnPreparedListener { 
-                    start() 
-                }
-                setOnCompletionListener {
-                    currentUrl = null
-                    isPaused = false
-                    onCompletion?.invoke()
-                }
-            }
+            onCompletion?.invoke()
         }
     }
 
-    actual fun pause() {
-        mediaPlayer?.let {
-            if (it.isPlaying) {
-                it.pause()
-                isPaused = true
+    private fun createPlayer(url: String, onCompletion: (() -> Unit)?): MediaPlayer =
+        MediaPlayer().apply {
+            setAudioAttributes(
+                AudioAttributes.Builder()
+                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                    .setUsage(AudioAttributes.USAGE_MEDIA)
+                    .build()
+            )
+            setOnPreparedListener { it.start() }
+            setOnCompletionListener {
+                currentUrl = null
+                isPaused = false
+                onCompletion?.invoke()
             }
+            setOnErrorListener { _, what, extra ->
+                logWarning(TAG, "Playback failed ($what/$extra) for $url")
+                stop()
+                onCompletion?.invoke()
+                true
+            }
+            setDataSource(url)
+            prepareAsync()
+        }
+
+    actual override fun pause() {
+        val player = mediaPlayer ?: return
+        if (player.isPlaying) {
+            player.pause()
+            isPaused = true
         }
     }
 
-    actual fun stop() {
-        mediaPlayer?.let {
+    actual override fun stop() {
+        mediaPlayer?.let { player ->
             try {
-                if (it.isPlaying) {
-                    it.stop()
-                }
-            } catch (_: Exception) {}
-            it.release()
+                if (player.isPlaying) player.stop()
+            } catch (e: IllegalStateException) {
+                logWarning(TAG, "stop() called in an invalid player state", e)
+            }
+            player.release()
         }
         mediaPlayer = null
         currentUrl = null

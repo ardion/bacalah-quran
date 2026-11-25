@@ -14,13 +14,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import bacalah.app.shared.generated.resources.*
-import id.ardion.quran.theme.IslamicPrimary
-import id.ardion.quran.theme.IslamicTextPrimary
+import id.ardion.quran.presentation.theme.IslamicPrimary
+import id.ardion.quran.presentation.theme.IslamicTextPrimary
 import org.jetbrains.compose.resources.*
 
 @Composable
 fun ErrorScreen(
-    message: String,
+    error: Throwable,
     onRetry: () -> Unit
 ) {
     Box(
@@ -55,7 +55,7 @@ fun ErrorScreen(
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = message,
+                    text = errorMessage(error),
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.Gray,
                     textAlign = TextAlign.Center,

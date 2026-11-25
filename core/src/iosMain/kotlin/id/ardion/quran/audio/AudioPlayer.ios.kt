@@ -1,5 +1,3 @@
-@file:Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
-
 package id.ardion.quran.audio
 
 import platform.AVFoundation.AVPlayer
@@ -11,12 +9,14 @@ import platform.Foundation.NSNotificationCenter
 import platform.Foundation.NSURL
 import platform.darwin.NSObjectProtocol
 
-actual class AudioPlayer actual constructor() {
+actual class AudioPlayer actual constructor() : AudioPlayback {
+    actual override val isAvailable: Boolean = true
+
     private var player: AVPlayer? = null
     private var currentUrl: String? = null
     private var observer: NSObjectProtocol? = null
 
-    actual fun play(url: String, onCompletion: (() -> Unit)?) {
+    actual override fun play(url: String, onCompletion: (() -> Unit)?) {
         if (currentUrl == url && player != null) {
             player?.play()
         } else {
@@ -41,11 +41,11 @@ actual class AudioPlayer actual constructor() {
         }
     }
 
-    actual fun pause() {
+    actual override fun pause() {
         player?.pause()
     }
 
-    actual fun stop() {
+    actual override fun stop() {
         removeObserver()
         player?.pause()
         player = null

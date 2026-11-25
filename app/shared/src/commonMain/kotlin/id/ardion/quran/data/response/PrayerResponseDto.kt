@@ -5,71 +5,59 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class AladhanResponseDto(
-    val code: Int,
-    val status: String,
-    val data: AladhanDataDto? = null
+    @SerialName("data") val data: AladhanDataDto? = null
 )
 
 @Serializable
 data class AladhanDataDto(
-    val timings: TimingsDto,
-    val date: DateDto? = null
+    @SerialName("timings") val timings: TimingsDto? = null,
+    @SerialName("date") val date: DateDto? = null
 )
 
 @Serializable
 data class TimingsDto(
-    @SerialName("Fajr") val fajr: String,
-    @SerialName("Sunrise") val sunrise: String,
-    @SerialName("Dhuhr") val dhuhr: String,
-    @SerialName("Asr") val asr: String,
-    @SerialName("Sunset") val sunset: String,
-    @SerialName("Maghrib") val maghrib: String,
-    @SerialName("Isha") val isha: String,
-    @SerialName("Imsak") val imsak: String? = null
+    @SerialName("Fajr") val fajr: String? = null,
+    @SerialName("Sunrise") val sunrise: String? = null,
+    @SerialName("Dhuhr") val dhuhr: String? = null,
+    @SerialName("Asr") val asr: String? = null,
+    @SerialName("Maghrib") val maghrib: String? = null,
+    @SerialName("Isha") val isha: String? = null
 )
 
 @Serializable
 data class DateDto(
-    val readable: String? = null,
-    val hijri: HijriDateDto? = null
+    @SerialName("readable") val readable: String? = null,
+    @SerialName("hijri") val hijri: HijriDateDto? = null
 )
 
 @Serializable
 data class HijriDateDto(
-    val date: String? = null,
-    val month: HijriMonthDto? = null,
-    val year: String? = null
+    @SerialName("date") val date: String? = null,
+    @SerialName("month") val month: HijriMonthDto? = null
 )
 
 @Serializable
 data class HijriMonthDto(
-    val number: Int? = null,
-    val en: String? = null,
-    val ar: String? = null
+    @SerialName("en") val en: String? = null
 )
 
 @Serializable
 data class NominatimResponseDto(
-    val address: NominatimAddressDto? = null,
-    val display_name: String? = null
+    @SerialName("address") val address: NominatimAddressDto? = null
 )
 
 @Serializable
 data class NominatimAddressDto(
-    val suburb: String? = null,
-    val village: String? = null,
-    val neighbourhood: String? = null,
-    val city_district: String? = null,
-    val city: String? = null,
-    val town: String? = null,
-    val county: String? = null,
-    val state: String? = null
+    @SerialName("suburb") val suburb: String? = null,
+    @SerialName("village") val village: String? = null,
+    @SerialName("neighbourhood") val neighbourhood: String? = null,
+    @SerialName("city_district") val cityDistrict: String? = null,
+    @SerialName("city") val city: String? = null,
+    @SerialName("town") val town: String? = null
 )
 
 @Serializable
 data class GeocodeResponseDto(
-    val locality: String? = null,
-    val city: String? = null,
-    val principalSubdivision: String? = null,
-    val countryName: String? = null
+    @SerialName("locality") val locality: String? = null,
+    @SerialName("city") val city: String? = null
 )

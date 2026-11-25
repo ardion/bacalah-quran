@@ -29,10 +29,11 @@ import id.ardion.quran.domain.model.SurahItem
 import id.ardion.quran.presentation.components.ErrorScreen
 import id.ardion.quran.presentation.components.SurahListShimmer
 import id.ardion.quran.state.UiState
-import id.ardion.quran.theme.IslamicBackground
-import id.ardion.quran.theme.IslamicGold
-import id.ardion.quran.theme.IslamicPrimary
-import id.ardion.quran.theme.IslamicTextPrimary
+import id.ardion.quran.presentation.theme.IslamicBackground
+import id.ardion.quran.presentation.theme.IslamicGold
+import id.ardion.quran.presentation.theme.IslamicGoldDark
+import id.ardion.quran.presentation.theme.IslamicPrimary
+import id.ardion.quran.presentation.theme.IslamicTextPrimary
 import org.jetbrains.compose.resources.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -40,7 +41,7 @@ import org.jetbrains.compose.resources.*
 fun SurahListScreen(
     viewModel: SurahListViewModel,
     onSurahClick: (Int) -> Unit,
-    onBackClick: (() -> Unit)? = null
+    onBackClick: () -> Unit
 ) {
     val state by viewModel.uiState.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
@@ -60,14 +61,12 @@ fun SurahListScreen(
                     )
                 },
                 navigationIcon = {
-                    onBackClick?.let { backAction ->
-                        IconButton(onClick = backAction) {
-                            Icon(
-                                Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = stringResource(Res.string.back),
-                                tint = Color.White
-                            )
-                        }
+                    IconButton(onClick = onBackClick) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(Res.string.back),
+                            tint = Color.White
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -79,104 +78,120 @@ fun SurahListScreen(
     ) { innerPadding ->
         Box(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
             when (val current = state) {
-                is UiState.Idle, is UiState.Loading -> SurahListShimmer()
+                UiState.Loading -> SurahListShimmer()
 
                 is UiState.Error -> ErrorScreen(
-                    message = current.message,
-                    onRetry = { viewModel.loadSurahList() }
+                    error = current.cause,
+                    onRetry = viewModel::loadSurahList
                 )
 
-                is UiState.Success -> {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        item {
-                            OutlinedTextField(
-                                value = searchQuery,
-                                onValueChange = { viewModel.onSearchQueryChanged(it) },
-                                placeholder = {
-                                    Text(
-                                        text = stringResource(Res.string.search_surah_placeholder),
-                                        color = Color.Gray,
-                                        fontSize = 14.sp
-                                    )
-                                },
-                                leadingIcon = {
-                                    Icon(
-                                        imageVector = Icons.Default.Search,
-                                        contentDescription = stringResource(Res.string.search_surah_placeholder),
-                                        tint = IslamicPrimary
-                                    )
-                                },
-                                trailingIcon = {
-                                    if (searchQuery.isNotEmpty()) {
-                                        IconButton(onClick = { viewModel.onSearchQueryChanged("") }) {
-                                            Icon(
-                                                imageVector = Icons.Default.Clear,
-                                                contentDescription = null,
-                                                tint = Color.Gray
-                                            )
-                                        }
-                                    }
-                                },
-                                modifier = Modifier.fillMaxWidth(),
-                                shape = RoundedCornerShape(16.dp),
-                                colors = OutlinedTextFieldDefaults.colors(
-                                    focusedContainerColor = Color.White,
-                                    unfocusedContainerColor = Color.White,
-                                    focusedBorderColor = IslamicPrimary,
-                                    unfocusedBorderColor = Color.LightGray.copy(alpha = 0.5f)
-                                ),
-                                singleLine = true
-                            )
-                        }
-
-                        if (current.data.isEmpty()) {
-                            item {
-                                Card(
-                                    modifier = Modifier.fillMaxWidth().padding(top = 24.dp),
-                                    shape = RoundedCornerShape(16.dp),
-                                    colors = CardDefaults.cardColors(containerColor = Color.White)
-                                ) {
-                                    Column(
-                                        modifier = Modifier.fillMaxWidth().padding(32.dp),
-                                        horizontalAlignment = Alignment.CenterHorizontally
-                                    ) {
-                                        Text(
-                                            text = stringResource(Res.string.surah_not_found),
-                                            style = MaterialTheme.typography.titleMedium,
-                                            fontWeight = FontWeight.Bold,
-                                            color = IslamicTextPrimary
-                                        )
-                                        Spacer(modifier = Modifier.height(4.dp))
-                                        Text(
-                                            text = stringResource(Res.string.surah_not_found_desc),
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            color = Color.Gray
-                                        )
-                                    }
-                                }
-                            }
-                        } else {
-                            items(current.data) { surah ->
-                                SurahListItem(surah = surah, onClick = { onSurahClick(surah.number) })
-                            }
-                        }
-                    }
-                }
+                is UiState.Success -> SurahListContent(
+                    surahs = current.data,
+                    searchQuery = searchQuery,
+                    onSearchQueryChange = viewModel::onSearchQueryChanged,
+                    onSurahClick = onSurahClick
+                )
             }
         }
     }
 }
 
 @Composable
-fun SurahListItem(surah: SurahItem, onClick: () -> Unit) {
+private fun SurahListContent(
+    surahs: List<SurahItem>,
+    searchQuery: String,
+    onSearchQueryChange: (String) -> Unit,
+    onSurahClick: (Int) -> Unit
+) {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        item(key = "search") {
+            SurahSearchField(query = searchQuery, onQueryChange = onSearchQueryChange)
+        }
+        if (surahs.isEmpty()) {
+            item(key = "empty") { SurahNotFoundCard() }
+        } else {
+            items(surahs, key = { it.number }) { surah ->
+                SurahListItem(surah = surah, onClick = { onSurahClick(surah.number) })
+            }
+        }
+    }
+}
+
+@Composable
+private fun SurahSearchField(query: String, onQueryChange: (String) -> Unit) {
+    OutlinedTextField(
+        value = query,
+        onValueChange = onQueryChange,
+        placeholder = {
+            Text(
+                text = stringResource(Res.string.search_surah_placeholder),
+                color = Color.Gray,
+                fontSize = 14.sp
+            )
+        },
+        leadingIcon = {
+            Icon(
+                imageVector = Icons.Default.Search,
+                contentDescription = stringResource(Res.string.search_surah_placeholder),
+                tint = IslamicPrimary
+            )
+        },
+        trailingIcon = {
+            if (query.isNotEmpty()) {
+                IconButton(onClick = { onQueryChange("") }) {
+                    Icon(imageVector = Icons.Default.Clear, contentDescription = stringResource(Res.string.clear_search), tint = Color.Gray)
+                }
+            }
+        },
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedContainerColor = Color.White,
+            unfocusedContainerColor = Color.White,
+            focusedBorderColor = IslamicPrimary,
+            unfocusedBorderColor = Color.LightGray.copy(alpha = 0.5f)
+        ),
+        singleLine = true
+    )
+}
+
+@Composable
+private fun SurahNotFoundCard() {
+    Card(
+        modifier = Modifier.fillMaxWidth().padding(top = 24.dp),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(32.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = stringResource(Res.string.surah_not_found),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = IslamicTextPrimary
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = stringResource(Res.string.surah_not_found_desc),
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.Gray
+            )
+        }
+    }
+}
+
+@Composable
+private fun SurahListItem(surah: SurahItem, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() },
+            .clickable(onClick = onClick),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
@@ -221,7 +236,7 @@ fun SurahListItem(surah: SurahItem, onClick: () -> Unit) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Badge(
                         containerColor = IslamicGold.copy(alpha = 0.15f),
-                        contentColor = Color(0xFF8A6D2B)
+                        contentColor = IslamicGoldDark
                     ) {
                         Text(
                             text = surah.revelationType,

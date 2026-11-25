@@ -28,12 +28,17 @@ jobs:
           mkdir -p ~/.android
           keytool -genkey -v -keystore ~/.android/debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
 
-      - name: 4. Build Android APK & Web Distribution
+      - name: 4. Run Unit Tests & Android Lint
+        run: |
+          chmod +x gradlew
+          ./gradlew :core:jvmTest :app:shared:jvmTest :core:testAndroidHostTest :app:shared:testAndroidHostTest :app:androidApp:lintDevDebug --no-daemon -Dorg.gradle.jvmargs=-Xmx2048m
+
+      - name: 5. Build Android APK & Web Distribution
         run: |
           chmod +x gradlew
           ./gradlew :app:androidApp:assembleDevDebug :app:webApp:jsBrowserDevelopmentExecutableDistribution --no-daemon -Dorg.gradle.jvmargs=-Xmx2048m
 
-      - name: 5. Send APK & Notification to Telegram Group
+      - name: 6. Send APK & Notification to Telegram Group
         if: success()
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
@@ -57,7 +62,7 @@ jobs:
             -F caption="${CAPTION}" \
             -F parse_mode="Markdown"
 
-      - name: 6. Send Failure Notification
+      - name: 7. Send Failure Notification
         if: failure()
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}

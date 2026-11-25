@@ -2,14 +2,12 @@
     <!-- General & App -->
     <string name="app_name">Bacalah</string>
     <string name="app_title">Bacalah Al-Quran</string>
-    <string name="iqra_arabic">اقْرَأْ</string>
-    <string name="greeting">Assalamu\'alaikum</string>
+    <string name="greeting">Assalamu'alaikum</string>
     <string name="back">Kembali</string>
     <string name="refresh">Perbarui</string>
     <string name="close">Tutup</string>
     <string name="understand">Mengerti</string>
     <string name="warning">Peringatan</string>
-    <string name="ayat_unit">Ayat</string>
     <string name="ayah_count_format">%1$d Ayat</string>
     <string name="surah_prefix">Surah %1$s</string>
 
@@ -18,21 +16,19 @@
     <string name="menu_surah_title">Daftar Surah</string>
     <string name="menu_surah_sub">114 Surah Lengkap</string>
     <string name="menu_mushaf_title">Mushaf Madinah</string>
-    <string name="menu_mushaf_sub">604 Lembar Halaman</string>
+    <string name="menu_mushaf_sub">604 halaman, geser kanan-ke-kiri</string>
     <string name="menu_prayer_title">Jadwal Sholat</string>
     <string name="menu_prayer_sub">Arah Kiblat GPS</string>
-    <string name="badge_popular">Populer</string>
-    <string name="badge_mushaf">Swipe RTL</string>
-    <string name="badge_prayer">Sholat &amp; Kiblat</string>
 
     <!-- Last Read Bookmarks -->
     <string name="last_read_surah_title">Terakhir Dibaca (Surah)</string>
     <string name="last_read_mushaf_title">Terakhir Dibaca (Mushaf)</string>
-    <string name="last_read_tag"> Terakhir Dibaca</string>
+    <string name="last_read_tag">Terakhir Dibaca</string>
     <string name="continue_reading">Lanjutkan</string>
     <string name="surah_last_read_format">Surah %1$s • Ayat %2$d</string>
     <string name="mushaf_last_read_format">Mushaf • Halaman %1$d (%2$s Ayat %3$d)</string>
     <string name="mushaf_last_read_format_simple">Mushaf • Halaman %1$d (%2$s)</string>
+    <string name="mushaf_last_read_format_page">Mushaf • Halaman %1$d</string>
 
     <!-- Surah List & Detail -->
     <string name="search_surah_placeholder">Cari Surah</string>
@@ -42,6 +38,9 @@
     <string name="play_full_surah">Putar Seluruh Surah</string>
     <string name="pause_full_surah">Jeda Surah</string>
     <string name="translation_label">Terjemahan</string>
+    <string name="play_ayah">Putar ayat</string>
+    <string name="pause_ayah">Jeda ayat</string>
+    <string name="clear_search">Hapus pencarian</string>
     <string name="detail_surah_title">Detail Surah</string>
 
     <!-- Mushaf Madinah Page -->
@@ -54,16 +53,14 @@
     <string name="mushaf_play_page">Putar Halaman</string>
     <string name="mushaf_play">Putar</string>
     <string name="mushaf_pause">Jeda</string>
-    <string name="page_info_cd">Info Halaman</string>
     <string name="filter_page_cd">Filter Halaman, Surah, Juz</string>
     <string name="input_page_label">Masukkan Nomor Halaman (1 - 604):</string>
     <string name="input_surah_label">Masukkan Nomor Surah (1 - 114):</string>
     <string name="input_juz_label">Masukkan Nomor Juz (1 - 30):</string>
     <string name="input_example_placeholder">Contoh: 1, 30, 604</string>
     <string name="mushaf_page_juz_format">Halaman %1$d, Juz %2$d</string>
+    <string name="mushaf_page_format">Halaman %1$d</string>
     <string name="mushaf_page_ayah_count_format">Halaman %1$d • %2$d Ayat</string>
-    <string name="default_surah_name">Al-Fatihah</string>
-    <string name="default_revelation_type">Makkiyah</string>
 
     <!-- Prayer Times & Qibla -->
     <string name="prayer_screen_title">Jadwal Sholat &amp; Kompas Kiblat</string>
@@ -76,6 +73,8 @@
     <string name="prayer_maghrib">Maghrib</string>
     <string name="prayer_isha">Isya</string>
     <string name="coord_format">Lat: %1$s, Lon: %2$s</string>
+    <string name="location_unknown">Lokasi tidak dikenal</string>
+    <string name="location_fallback_notice">Lokasi perangkat tidak tersedia, memakai Jakarta</string>
 
     <!-- Cardinal Directions -->
     <string name="cardinal_north_short">U</string>
@@ -100,30 +99,36 @@
     <string name="how_to_use_heading">Ikuti 3 langkah mudah berikut:</string>
     <string name="how_to_use_step1">1. Posisikan HP mendatar di telapak tangan atau letakkan di lantai datar.</string>
     <string name="how_to_use_step2">2. Putar posisi tubuh Anda mengikuti petunjuk panah (Kanan/Kiri) di bawah kompas.</string>
-    <string name="how_to_use_step3">3. Ketika jarum Ka\'bah berada tepat di puncak atas dan layar berubah hijau, Anda sudah menghadap kiblat.</string>
+    <string name="how_to_use_step3">3. Ketika jarum Ka'bah berada tepat di puncak atas dan layar berubah hijau, Anda sudah menghadap kiblat.</string>
     <string name="start_search_qibla">Mulai Cari Kiblat</string>
 
-    <string name="calibration_dialog_title">Panduan Kalibrasi Kompas</string>
     <string name="calibration_dialog_subtitle">Jika kompas terasa melenceng / sensor belum akurat:</string>
     <string name="calibration_dialog_step1">1. Ayunkan HP membentuk pola angka 8 (∞) di udara sebanyak 3-5 kali.</string>
     <string name="calibration_dialog_step2">2. Jauhkan HP dari benda magnetik, seperti casing bermagnet (MagSafe), speaker, laptop, atau logam tebal.</string>
     <string name="calibration_dialog_step3">3. Pastikan HP dipegang mendatar saat menentukan arah kiblat.</string>
 
+    <string name="compass_unavailable">Kompas tidak tersedia di perangkat ini</string>
     <string name="lbl_qibla_facing_correct">Posisi Tepat Menghadap Kiblat</string>
     <string name="lbl_calibration_instruction">Perlu Kalibrasi (Angka 8)</string>
     <string name="lbl_how_to_use_title">Pegang HP Mendatar</string>
     <string name="lbl_how_to_use_step">Sensor Siap &amp; Akurat</string>
-    <string name="qibla_facing_desc">Ponsel sudah lurus menghadap Ka\'bah (%1$s°)</string>
+    <string name="qibla_facing_desc">Ponsel sudah lurus menghadap Ka'bah (%1$s°)</string>
     <string name="qibla_turn_right">Putar Tubuh ke Kanan %1$d°</string>
     <string name="qibla_turn_left">Putar Tubuh ke Kiri %1$d°</string>
-    <string name="qibla_align_instruction">Arahkan HP hingga jarum Ka\'bah lurus ke atas</string>
+    <string name="qibla_align_instruction">Arahkan HP hingga jarum Ka'bah lurus ke atas</string>
     <string name="qibla_target_label">Target Kiblat: %1$s° dari Utara</string>
     <string name="calibration_guide_cd">Panduan Kalibrasi</string>
     <string name="instruction_cd">Petunjuk</string>
     <string name="how_to_use_btn">Cara Pakai</string>
 
     <!-- Errors -->
-    <string name="error_general">Terjadi kesalahan</string>
-    <string name="error_offline_title">Koneksi Terputus / Gagal Memuat</string>
+    <string name="error_general">Terjadi kesalahan. Silakan coba lagi.</string>
+    <string name="error_no_internet">Koneksi internet terputus.</string>
+    <string name="error_timeout">Waktu koneksi habis. Silakan coba lagi.</string>
+    <string name="error_forbidden">Akses ke server ditolak.</string>
+    <string name="error_not_found">Data tidak ditemukan.</string>
+    <string name="error_server">Terjadi kesalahan pada server (%1$d).</string>
+    <string name="error_client">Kesalahan permintaan (%1$d).</string>
+    <string name="error_offline_title">Gagal memuat data</string>
     <string name="retry">Coba Lagi</string>
 </resources>
