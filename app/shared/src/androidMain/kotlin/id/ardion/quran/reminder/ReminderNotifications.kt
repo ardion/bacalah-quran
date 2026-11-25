@@ -64,7 +64,7 @@ internal fun canPostNotifications(context: Context): Boolean =
     Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
         ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
 
-private fun openAppIntent(context: Context): PendingIntent? =
+internal fun openAppIntent(context: Context): PendingIntent? =
     context.packageManager.getLaunchIntentForPackage(context.packageName)?.let { launch ->
         PendingIntent.getActivity(context, OPEN_APP_REQUEST_CODE, launch, PendingIntent.FLAG_IMMUTABLE)
     }

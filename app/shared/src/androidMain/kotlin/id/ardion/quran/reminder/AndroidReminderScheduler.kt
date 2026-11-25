@@ -86,7 +86,7 @@ class AndroidReminderScheduler(private val context: Context) : ReminderScheduler
             return
         }
         try {
-            manager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAt, pending)
+            manager.setAlarmClock(AlarmManager.AlarmClockInfo(triggerAt, openAppIntent(context)), pending)
         } catch (e: SecurityException) {
             logWarning(TAG, "Exact alarm permission revoked, using an inexact window", e)
             manager.setWindow(AlarmManager.RTC_WAKEUP, triggerAt, INEXACT_WINDOW_MS, pending)
