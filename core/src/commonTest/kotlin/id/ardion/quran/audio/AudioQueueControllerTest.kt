@@ -65,11 +65,38 @@ class AudioQueueControllerTest {
     }
 
     @Test
-    fun toggleSingleTwicePauses() {
+    fun toggleSingleTwicePausesAndKeepsTheAyah() {
         controller.toggleSingle("a")
         controller.toggleSingle("a")
         assertEquals(1, player.pauses)
+        assertEquals("a", controller.playingUrl.value)
+        assertFalse(controller.isPlaying.value)
+    }
+
+    @Test
+    fun toggleSingleAfterPauseResumes() {
+        controller.toggleSingle("a")
+        controller.toggleSingle("a")
+        controller.toggleSingle("a")
+        assertEquals(listOf("a", "a"), player.played)
+        assertTrue(controller.isPlaying.value)
+    }
+
+    @Test
+    fun finishedAyahClearsPlaybackState() {
+        controller.toggleSingle("a")
+        player.finish()
         assertNull(controller.playingUrl.value)
+        assertFalse(controller.isPlaying.value)
+    }
+
+    @Test
+    fun stopClearsPausedAyah() {
+        controller.toggleSingle("a")
+        controller.toggleSingle("a")
+        controller.stop()
+        assertNull(controller.playingUrl.value)
+        assertFalse(controller.isPlaying.value)
     }
 
     @Test
