@@ -4,6 +4,7 @@ import id.ardion.quran.data.response.AladhanDataDto
 import id.ardion.quran.data.response.GeocodeResponseDto
 import id.ardion.quran.data.response.KemenagDayDto
 import id.ardion.quran.data.response.NominatimAddressDto
+import id.ardion.quran.data.response.TimingsDto
 import id.ardion.quran.domain.model.LocationCoordinates
 import id.ardion.quran.domain.model.PrayerTimeSource
 import id.ardion.quran.domain.model.PrayerTimes
@@ -19,18 +20,20 @@ data class PrayerContext(
     val date: LocalDate
 )
 
-fun AladhanDataDto.toDomain(context: PrayerContext): PrayerTimes? {
-    val times = timings ?: return null
-    return context.toPrayerTimes(
-        fajr = times.fajr ?: MISSING_TIME,
-        sunrise = times.sunrise ?: MISSING_TIME,
-        dhuhr = times.dhuhr ?: MISSING_TIME,
-        asr = times.asr ?: MISSING_TIME,
-        maghrib = times.maghrib ?: MISSING_TIME,
-        isha = times.isha ?: MISSING_TIME,
-        source = PrayerTimeSource.CALCULATED
-    )
-}
+fun AladhanDataDto.toDomain(context: PrayerContext): PrayerTimes? = timings?.toDomain(context)
+
+fun TimingsDto.toDomain(context: PrayerContext): PrayerTimes = context.toPrayerTimes(
+    fajr = fajr.normalizedTime(),
+    sunrise = sunrise.normalizedTime(),
+    dhuhr = dhuhr.normalizedTime(),
+    asr = asr.normalizedTime(),
+    maghrib = maghrib.normalizedTime(),
+    isha = isha.normalizedTime(),
+    source = PrayerTimeSource.CALCULATED
+)
+
+private fun String?.normalizedTime(): String =
+    this?.substringBefore(" ")?.trim()?.takeIf { it.isNotEmpty() } ?: MISSING_TIME
 
 fun KemenagDayDto.toDomain(context: PrayerContext): PrayerTimes? =
     context.toPrayerTimes(

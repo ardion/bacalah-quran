@@ -24,6 +24,27 @@ data class TimingsDto(
 )
 
 @Serializable
+data class AladhanCalendarResponseDto(
+    @SerialName("data") val data: List<AladhanCalendarDayDto> = emptyList()
+)
+
+@Serializable
+data class AladhanCalendarDayDto(
+    @SerialName("timings") val timings: TimingsDto? = null,
+    @SerialName("date") val date: AladhanDateDto? = null
+)
+
+@Serializable
+data class AladhanDateDto(
+    @SerialName("gregorian") val gregorian: AladhanGregorianDto? = null
+)
+
+@Serializable
+data class AladhanGregorianDto(
+    @SerialName("date") val date: String? = null
+)
+
+@Serializable
 data class NominatimResponseDto(
     @SerialName("address") val address: NominatimAddressDto? = null
 )

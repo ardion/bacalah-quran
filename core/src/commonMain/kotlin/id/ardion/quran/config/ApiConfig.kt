@@ -9,6 +9,7 @@ object ApiConfig {
     const val AYAH_AUDIO_URL_TEMPLATE = "https://cdn.islamic.network/quran/audio/128/ar.alafasy/{n}.mp3"
 
     const val PRAYER_TIMES_URL = "https://api.aladhan.com/v1/timings"
+    const val PRAYER_CALENDAR_URL = "https://api.aladhan.com/v1/calendar"
 
     const val PRAYER_CALCULATION_METHOD = 20
 

@@ -6,6 +6,7 @@ import id.ardion.quran.domain.model.PrayerTimes
 import id.ardion.quran.domain.repository.LocationProvider
 import id.ardion.quran.domain.repository.PrayerRepository
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.LocalDate
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -19,6 +20,13 @@ private class RecordingPrayerRepository : PrayerRepository {
         requested = location to isLiveLocation
         return Result.failure(UnsupportedOperationException("not needed"))
     }
+
+    override suspend fun getSchedule(
+        location: LocationCoordinates,
+        isLiveLocation: Boolean,
+        from: LocalDate,
+        days: Int
+    ): Result<List<PrayerTimes>> = Result.failure(UnsupportedOperationException("not needed"))
 }
 
 class GetPrayerTimesUseCaseTest {

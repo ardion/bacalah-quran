@@ -1,6 +1,7 @@
 package id.ardion.quran.data.remote
 
 import id.ardion.quran.config.ApiConfig
+import id.ardion.quran.data.response.AladhanCalendarResponseDto
 import id.ardion.quran.data.response.AladhanResponseDto
 import id.ardion.quran.data.response.GeocodeResponseDto
 import id.ardion.quran.data.response.NominatimResponseDto
@@ -19,6 +20,14 @@ class PrayerApiService(private val httpClient: HttpClient) {
 
     suspend fun fetchPrayerTimings(location: LocationCoordinates): AladhanResponseDto =
         httpClient.get(ApiConfig.PRAYER_TIMES_URL) {
+            parameter("latitude", location.latitude)
+            parameter("longitude", location.longitude)
+            parameter("method", ApiConfig.PRAYER_CALCULATION_METHOD)
+            parameter("tune", ApiConfig.KEMENAG_IHTIYATH_TUNE)
+        }.body()
+
+    suspend fun fetchPrayerCalendar(location: LocationCoordinates, year: Int, month: Int): AladhanCalendarResponseDto =
+        httpClient.get("${ApiConfig.PRAYER_CALENDAR_URL}/$year/$month") {
             parameter("latitude", location.latitude)
             parameter("longitude", location.longitude)
             parameter("method", ApiConfig.PRAYER_CALCULATION_METHOD)
