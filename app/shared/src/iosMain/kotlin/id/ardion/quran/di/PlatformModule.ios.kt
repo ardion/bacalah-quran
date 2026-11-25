@@ -9,12 +9,12 @@ import id.ardion.quran.platform.FileResponseCache
 import id.ardion.quran.platform.IosCompassSensor
 import id.ardion.quran.platform.IosLocationProvider
 import id.ardion.quran.platform.UserDefaultsKeyValueStore
-import id.ardion.quran.platform.UnavailableReminderScheduler
+import id.ardion.quran.reminder.IosReminderScheduler
 import org.koin.core.module.Module
 import org.koin.dsl.module
 
 internal actual val platformModule: Module = module {
-    single<ReminderScheduler> { UnavailableReminderScheduler() }
+    single<ReminderScheduler> { IosReminderScheduler() }
     single<KeyValueStore> { UserDefaultsKeyValueStore() }
     single<ResponseCache> { FileResponseCache() }
     single<LocationProvider> { IosLocationProvider() }
