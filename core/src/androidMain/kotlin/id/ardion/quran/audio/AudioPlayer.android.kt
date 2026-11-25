@@ -16,6 +16,11 @@ actual class AudioPlayer actual constructor() : AudioPlayback {
     actual override fun play(url: String, onCompletion: (() -> Unit)?) {
         val player = mediaPlayer
         if (currentUrl == url && player != null) {
+            player.setOnCompletionListener {
+                currentUrl = null
+                isPaused = false
+                onCompletion?.invoke()
+            }
             if (isPaused) {
                 player.start()
                 isPaused = false

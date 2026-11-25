@@ -12,8 +12,15 @@ actual class AudioPlayer actual constructor() : AudioPlayback {
     private var currentUrl: String? = null
 
     actual override fun play(url: String, onCompletion: (() -> Unit)?) {
-        if (currentUrl == url && audioElement != null) {
-            audioElement?.play()
+        val audio = audioElement
+        if (currentUrl == url && audio != null) {
+            if (onCompletion != null) {
+                audio.onended = {
+                    currentUrl = null
+                    onCompletion()
+                }
+            }
+            audio.play()
         } else {
             stop()
             currentUrl = url

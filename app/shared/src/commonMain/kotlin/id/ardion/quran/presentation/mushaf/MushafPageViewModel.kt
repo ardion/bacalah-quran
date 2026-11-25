@@ -43,6 +43,7 @@ class MushafPageViewModel(
     val initialPageNumber: Int = lastRead.value?.pageNumber ?: 1
 
     val playingAudioUrl: StateFlow<String?> = audio.playingUrl
+    val isPlayingAudio: StateFlow<Boolean> = audio.isPlaying
     val isPlayingPage: StateFlow<Boolean> = audio.isPlayingQueue
     val isAudioAvailable: Boolean = audio.isAvailable
 
@@ -83,13 +84,7 @@ class MushafPageViewModel(
 
     fun playAudio(url: String) = audio.toggleSingle(url)
 
-    fun togglePlayPage(ayahs: List<AyahDetail>) {
-        if (audio.playingUrl.value != null && !audio.isPlayingQueue.value) {
-            audio.pause()
-        } else {
-            audio.toggleQueue(ayahs.map { it.audioUrl })
-        }
-    }
+    fun togglePlayPage(ayahs: List<AyahDetail>) = audio.toggleQueue(ayahs.map { it.audioUrl })
 
     fun stopAudio() = audio.stop()
 

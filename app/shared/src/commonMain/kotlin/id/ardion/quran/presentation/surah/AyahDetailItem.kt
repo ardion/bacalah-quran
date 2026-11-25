@@ -45,16 +45,17 @@ fun AyahDetailItem(
     isLastRead: Boolean,
     onPlayAudio: ((String) -> Unit)?,
     onBookmarkClick: () -> Unit,
-    onTajweedClick: (TajweedInfo) -> Unit
+    onTajweedClick: (TajweedInfo) -> Unit,
+    isCurrentActive: Boolean = false
 ) {
-    val isHighlighted = isPlaying || isLastRead
+    val isHighlighted = isPlaying || isLastRead || isCurrentActive
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = if (isHighlighted) IslamicCardHighlight else Color.White
         ),
-        border = if (isHighlighted) BorderStroke(1.5.dp, IslamicGold) else null,
+        border = if (isHighlighted) BorderStroke(if (isPlaying) 1.5.dp else 1.dp, IslamicGold) else null,
         elevation = CardDefaults.cardElevation(defaultElevation = if (isHighlighted) 6.dp else 2.dp)
     ) {
         Column(
@@ -143,7 +144,7 @@ private fun AyahActionRow(
                         .size(38.dp)
                         .clip(CircleShape)
                         .background(if (isPlaying) IslamicPrimary else IslamicPrimary.copy(alpha = 0.1f))
-                ) {
+            ) {
                     Icon(
                         imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
                         contentDescription = stringResource(if (isPlaying) Res.string.pause_ayah else Res.string.play_ayah),

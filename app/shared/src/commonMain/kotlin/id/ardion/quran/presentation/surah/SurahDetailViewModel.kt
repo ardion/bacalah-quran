@@ -36,6 +36,7 @@ class SurahDetailViewModel(
     }
 
     val playingAudioUrl: StateFlow<String?> = audio.playingUrl
+    val isPlayingAudio: StateFlow<Boolean> = audio.isPlaying
     val isPlayingFullSurah: StateFlow<Boolean> = audio.isPlayingQueue
     val isAudioAvailable: Boolean = audio.isAvailable
 

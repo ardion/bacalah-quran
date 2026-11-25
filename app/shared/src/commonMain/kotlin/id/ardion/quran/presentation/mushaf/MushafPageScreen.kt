@@ -106,10 +106,11 @@ fun MushafPageScreen(
         }
 
         pageDetail?.ayahs?.takeIf { it.isNotEmpty() && viewModel.isAudioAvailable }?.let { ayahs ->
+            val isPlayingAudio by viewModel.isPlayingAudio.collectAsState()
             MushafPlayBar(
                 pageNumber = currentPageNumber,
                 ayahs = ayahs,
-                isPlaying = isPlayingPage || playingUrl != null,
+                isPlaying = (isPlayingPage || playingUrl != null) && isPlayingAudio,
                 onTogglePlay = { viewModel.togglePlayPage(ayahs) }
             )
         }

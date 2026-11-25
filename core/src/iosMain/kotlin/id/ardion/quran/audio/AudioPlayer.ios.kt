@@ -5,6 +5,7 @@ import platform.AVFoundation.AVPlayerItem
 import platform.AVFoundation.AVPlayerItemDidPlayToEndTimeNotification
 import platform.AVFoundation.play
 import platform.AVFoundation.pause
+import platform.AVFoundation.currentItem
 import platform.Foundation.NSNotificationCenter
 import platform.Foundation.NSURL
 import platform.darwin.NSObjectProtocol
@@ -17,19 +18,31 @@ actual class AudioPlayer actual constructor() : AudioPlayback {
     private var observer: NSObjectProtocol? = null
 
     actual override fun play(url: String, onCompletion: (() -> Unit)?) {
-        if (currentUrl == url && player != null) {
+        val item = player?.currentItem()
+        if (currentUrl == url && player != null && item != null) {
+            removeObserver()
+            if (onCompletion != null) {
+                observer = NSNotificationCenter.defaultCenter.addObserverForName(
+                    name = AVPlayerItemDidPlayToEndTimeNotification,
+                    `object` = item,
+                    queue = null
+                ) { _ ->
+                    currentUrl = null
+                    onCompletion()
+                }
+            }
             player?.play()
         } else {
             removeObserver()
             currentUrl = url
             val nsUrl = NSURL.URLWithString(url) ?: return
-            val item = AVPlayerItem(uRL = nsUrl)
-            player = AVPlayer(playerItem = item)
+            val newItem = AVPlayerItem(uRL = nsUrl)
+            player = AVPlayer(playerItem = newItem)
 
             if (onCompletion != null) {
                 observer = NSNotificationCenter.defaultCenter.addObserverForName(
                     name = AVPlayerItemDidPlayToEndTimeNotification,
-                    `object` = item,
+                    `object` = newItem,
                     queue = null
                 ) { _ ->
                     currentUrl = null

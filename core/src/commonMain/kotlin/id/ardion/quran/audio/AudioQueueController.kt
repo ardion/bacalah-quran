@@ -11,6 +11,9 @@ class AudioQueueController(private val player: AudioPlayback) {
     private val _playingUrl = MutableStateFlow<String?>(null)
     val playingUrl: StateFlow<String?> = _playingUrl.asStateFlow()
 
+    private val _isPlaying = MutableStateFlow(false)
+    val isPlaying: StateFlow<Boolean> = _isPlaying.asStateFlow()
+
     private val _isPlayingQueue = MutableStateFlow(false)
     val isPlayingQueue: StateFlow<Boolean> = _isPlayingQueue.asStateFlow()
 
@@ -20,15 +23,18 @@ class AudioQueueController(private val player: AudioPlayback) {
 
     fun toggleSingle(url: String) {
         _isPlayingQueue.value = false
-        if (_playingUrl.value == url) {
+        if (_playingUrl.value == url && _isPlaying.value) {
             pause()
         } else {
-            play(url) { _playingUrl.value = null }
+            play(url) { 
+                _playingUrl.value = null
+                _isPlaying.value = false
+            }
         }
     }
 
     fun toggleQueue(urls: List<String?>) {
-        if (_isPlayingQueue.value) {
+        if (_isPlayingQueue.value && _isPlaying.value) {
             pause()
         } else {
             _isPlayingQueue.value = true
@@ -39,13 +45,14 @@ class AudioQueueController(private val player: AudioPlayback) {
     fun pause() {
         playbackToken++
         _isPlayingQueue.value = false
-        _playingUrl.value = null
+        _isPlaying.value = false
         player.pause()
     }
 
     fun stop() {
         playbackToken++
         _isPlayingQueue.value = false
+        _isPlaying.value = false
         _playingUrl.value = null
         queueIndex = 0
         player.stop()
@@ -65,6 +72,7 @@ class AudioQueueController(private val player: AudioPlayback) {
     private fun play(url: String, onCompletion: () -> Unit) {
         val token = ++playbackToken
         _playingUrl.value = url
+        _isPlaying.value = true
         player.play(url) {
             if (token == playbackToken) onCompletion()
         }

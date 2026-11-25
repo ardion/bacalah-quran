@@ -50,6 +50,7 @@ fun SurahDetailScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
     val playingUrl by viewModel.playingAudioUrl.collectAsState()
+    val isPlayingAudio by viewModel.isPlayingAudio.collectAsState()
     val isPlayingFullSurah by viewModel.isPlayingFullSurah.collectAsState()
     val lastRead by viewModel.lastRead.collectAsState()
     var selectedTajweedInfo by remember { mutableStateOf<TajweedInfo?>(null) }
@@ -98,6 +99,7 @@ fun SurahDetailScreen(
                     listState = listState,
                     lastRead = lastRead,
                     playingUrl = playingUrl,
+                    isPlayingAudio = isPlayingAudio,
                     isPlayingFullSurah = isPlayingFullSurah,
                     onTogglePlayFullSurah = { viewModel.togglePlayFullSurah(current.data.ayahs) }
                         .takeIf { viewModel.isAudioAvailable },
@@ -128,6 +130,7 @@ private fun SurahAyahList(
     listState: LazyListState,
     lastRead: SurahLastRead?,
     playingUrl: String?,
+    isPlayingAudio: Boolean,
     isPlayingFullSurah: Boolean,
     onTogglePlayFullSurah: (() -> Unit)?,
     onPlayAudio: ((String) -> Unit)?,
@@ -149,9 +152,11 @@ private fun SurahAyahList(
         }
 
         items(surah.ayahs, key = { it.numberInSurah }) { ayah ->
+            val isCurrentAyah = (playingUrl == ayah.audioUrl)
             AyahDetailItem(
                 ayah = ayah,
-                isPlaying = playingUrl == ayah.audioUrl,
+                isPlaying = isCurrentAyah && isPlayingAudio,
+                isCurrentActive = isCurrentAyah,
                 isLastRead = lastRead?.surahNumber == surah.number && lastRead.ayahNumber == ayah.numberInSurah,
                 onPlayAudio = onPlayAudio,
                 onBookmarkClick = { onToggleBookmark(ayah) },
