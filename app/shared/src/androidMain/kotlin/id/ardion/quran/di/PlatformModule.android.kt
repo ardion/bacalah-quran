@@ -10,7 +10,7 @@ import id.ardion.quran.platform.AndroidLocationProvider
 import id.ardion.quran.platform.CompassSensor
 import id.ardion.quran.platform.FileResponseCache
 import org.koin.android.ext.koin.androidContext
-import id.ardion.quran.platform.UnavailableReminderScheduler
+import id.ardion.quran.reminder.AndroidReminderScheduler
 import org.koin.core.module.Module
 import org.koin.dsl.module
 import java.io.File
@@ -18,7 +18,7 @@ import java.io.File
 private const val RESPONSE_CACHE_FOLDER = "quran-cache"
 
 internal actual val platformModule: Module = module {
-    single<ReminderScheduler> { UnavailableReminderScheduler() }
+    single<ReminderScheduler> { AndroidReminderScheduler(androidContext()) }
     single<KeyValueStore> { AndroidKeyValueStore(androidContext()) }
     single<ResponseCache> { FileResponseCache(File(androidContext().filesDir, RESPONSE_CACHE_FOLDER)) }
     single<LocationProvider> { AndroidLocationProvider(androidContext()) }

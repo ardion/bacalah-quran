@@ -73,6 +73,7 @@ kotlin {
             implementation(libs.ktor.clientOkhttp)
             implementation(libs.koinAndroid)
             implementation(libs.playServicesLocation)
+            implementation(libs.androidx.core.ktx)
         }
         iosMain.dependencies {
             implementation(libs.ktor.clientDarwin) 

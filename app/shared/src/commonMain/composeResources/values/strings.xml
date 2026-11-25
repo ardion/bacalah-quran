@@ -66,6 +66,8 @@
     <string name="prayer_screen_title">Jadwal Sholat &amp; Kompas Kiblat</string>
     <string name="location_region">Lokasi Wilayah</string>
     <string name="prayer_today_title">Jadwal Sholat Hari Ini</string>
+    <string name="reminder_notification_title">Waktu %1$s</string>
+    <string name="reminder_notification_body">%1$s · %2$s</string>
     <string name="prayer_source_kemenag">Sumber: Kemenag RI (Bimas Islam)</string>
     <string name="prayer_source_calculated">Perkiraan perhitungan, bukan jadwal resmi Kemenag</string>
     <string name="date_format">%1$d %2$s %3$d</string>
